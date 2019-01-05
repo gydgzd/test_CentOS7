@@ -33,6 +33,7 @@ extern char* createJSON(void);
 extern int utf82gbk(char *gbkStr, const char *srcStr, int maxGbkStrlen);
 extern int testGets();
 extern int test_unorderedMap();
+extern int socket_server();
 struct test
 {
     int a;
@@ -41,7 +42,8 @@ struct test
 };
 int main(int argc, char ** argv)
 {
-	map<string, int> m1;
+
+    socket_server();
 	test_unorderedMap();
 //	testGets();
 	char c = 0xff;
