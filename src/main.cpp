@@ -42,9 +42,9 @@ struct test
 };
 int main(int argc, char ** argv)
 {
-    socket_server();
+/*    socket_server();
 	test_unorderedMap();
-//	testGets();
+	testGets();
 	char c = 0xff;
 	char d = 0xfe;
 	if( 0 == memcmp(&c,&d, 1))
@@ -56,6 +56,7 @@ int main(int argc, char ** argv)
 	t1.c = 12;
 	printf("%x\n", &t1.a);
 	printf("%64x, %d\n", t1, sizeof(t1));
+	*/
 //	char * str = create_monitor();
 //	str = strReturn();
 //	cout << str << endl;
@@ -71,9 +72,9 @@ int main(int argc, char ** argv)
     else
     	cout << "param error!" << endl;
 */
-/*
+/**/
 	cZmqWrapper zw;
-	zw.client("tcp://10.1.24.63:14600");
+	zw.client("tcp://10.1.24.63:14200");
 	char *buf = new char[512];
 	while(true)
 	{
@@ -90,7 +91,7 @@ int main(int argc, char ** argv)
 		cout << buf << endl;
 	}
 	delete[] buf;
-*/
+
 	/*
 	getVolum("/");
 	getVolum("/boot");

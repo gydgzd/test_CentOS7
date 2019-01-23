@@ -27,13 +27,21 @@ int socket_server()
     // initialize
     if( (socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1 )
     {
-        printf("Create socket error: %s (errno: %d)\n", strerror(errno), errno);
+        printf("Create socket error: %s (errno: %d). Exit.\n", strerror(errno), errno);
         exit(0);
     }
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);  //
     servaddr.sin_port = htons(DEFAULT_PORT);       //
+    //
+    int optval = 1;
+    if(-1 == setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)))
+    {
+        printf( "ERROR: Reuse addr error: %s (errno: %d). \nExit.", strerror(errno), errno);
+        exit(-1);
+        //return -1;
+    }
     // bind
     if( bind(socket_fd, (struct sockaddr*)&servaddr, sizeof(servaddr)) == -1)
     {
@@ -85,7 +93,7 @@ void thread_fun(int socket_fd)
             tv.tv_sec = 5;
             tv.tv_usec = 0;
 
-            retval = select(maxfd+1, &rfds, &rfds, NULL, &tv);
+            retval = select(maxfd+1, &rfds, NULL, NULL, &tv);
             if(retval == -1){
                 printf("select出错，客户端程序退出\n");
                 break;
@@ -105,8 +113,8 @@ void thread_fun(int socket_fd)
                         {
                             printf("客户端程序退出\n");
                             close(conn);
+                            break;
                         }
-
                     }
                     if(strcmp(buffer, "exit\n") == 0) break;
                     printf("%s\n", buffer);
