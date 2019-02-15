@@ -42,9 +42,9 @@ struct test
 };
 int main(int argc, char ** argv)
 {
-/*    socket_server();
+ //   socket_server();
 	test_unorderedMap();
-	testGets();
+/*	testGets();
 	char c = 0xff;
 	char d = 0xfe;
 	if( 0 == memcmp(&c,&d, 1))
