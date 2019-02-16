@@ -20,11 +20,16 @@ int test_unorderedMap()
     printf("Num %lu/%lu,  used mem %lu\n", mymap.size(), mymap.max_size(), sizeof(mymap));
 
     unordered_multimap<int, int> mymtmap_num;
-    mymtmap_num.insert(pair<int, int>(5, 2));
-    mymtmap_num.insert(pair<int, int>(4, 2));
-    mymtmap_num.insert(pair<int, int>(3, 2));
-    mymtmap_num.insert(pair<int, int>(1, 2));
-    mymtmap_num.insert(pair<int, int>(2, 2));
+    mymtmap_num.insert(mymtmap_num.begin(),pair<int, int>(5, 2));
+    mymtmap_num.insert(mymtmap_num.begin(),pair<int, int>(4, 2));
+    mymtmap_num.insert(mymtmap_num.begin(), pair<int, int>(3, 2));
+    mymtmap_num.insert(mymtmap_num.begin(), pair<int, int>(1, 2));
+    mymtmap_num.insert(mymtmap_num.begin(), pair<int, int>(2, 2));
+    mymtmap_num.insert(mymtmap_num.begin(), pair<int, int>(3, 2));
+    mymtmap_num.insert(mymtmap_num.begin(), pair<int, int>(4, 2));
+    mymtmap_num.insert(mymtmap_num.begin(), pair<int, int>(5, 2));
+    mymtmap_num.insert(mymtmap_num.begin(), pair<int, int>(6, 2));
+    mymtmap_num.insert(mymtmap_num.begin(), pair<int, int>(7, 2));
     std::unordered_multimap<int, int>::iterator mtmap_num_iter;
     for (mtmap_num_iter = mymtmap_num.begin(); mtmap_num_iter != mymtmap_num.end(); mtmap_num_iter++)
     {
