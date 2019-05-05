@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lzmq -lcjson -lpthread -ldl
+LIBS := -lzmq -lmysqlclient -lcjson -lpthread -ldl
 

@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 using namespace std;
@@ -21,6 +22,7 @@ using namespace std;
 #include "zmq_wrapper.h"
 #include "zlib.h"
 #include "zconf.h"
+#include "testMysqlclient.h"
 extern int my_zmq_server ();
 extern int my_zmq_client ();
 extern int testSQLite(int argc, char **argv);
@@ -42,12 +44,27 @@ struct test
     char b;
     int c;
 };
+void sigHandler(int signum)
+{
+    printf("catch a signal SIGINT, program exit!\n");
+    exit(0);
+}
 int main(int argc, char ** argv)
 {
- //   socket_server();
+    signal(SIGINT, sigHandler);
+    struct timeval tv;
+    for(int i = 0; i< 5; i++)
+    {
+        gettimeofday(&tv,NULL);
+        cout << tv.tv_sec  << "  " << tv.tv_usec << endl;
+        sleep(1);
+    }
+    testMysqlclient mycqlconn;
+    mycqlconn.mysqlconnect();
+     //   socket_server();
     testMap();
-	test_unorderedMap();
-/*	testGets();
+/*	test_unorderedMap();
+	testGets();
 	char c = 0xff;
 	char d = 0xfe;
 	if( 0 == memcmp(&c,&d, 1))
@@ -75,7 +92,7 @@ int main(int argc, char ** argv)
     else
     	cout << "param error!" << endl;
 */
-/**/
+/*
 	cZmqWrapper zw;
 	zw.client("tcp://10.1.24.63:14200");
 	char *buf = new char[512];
@@ -94,7 +111,7 @@ int main(int argc, char ** argv)
 		cout << buf << endl;
 	}
 	delete[] buf;
-
+*/
 	/*
 	getVolum("/");
 	getVolum("/boot");

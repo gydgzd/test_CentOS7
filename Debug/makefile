@@ -44,7 +44,7 @@ all: test
 test: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L/home/gyd/lib/zeromq-4.2.5/lib -L../cJSON/lib -o "test" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/home/gyd/lib/zeromq-4.2.5/lib -L../mysqlclient/lib -L../cJSON/lib -o "test" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
