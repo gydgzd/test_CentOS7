@@ -48,7 +48,7 @@ int testMap()
     mymaplist.insert(pair<string,list<string>>(*mylist2.begin(),mylist2));
     mymaplist.insert(pair<string,list<string>>(*mylist3.begin(),mylist3));
 
-    for(auto iter = mymaplist.begin(); iter != mymaplist.end(); iter++)
+    for(auto iter = mymaplist.rbegin(); iter != mymaplist.rend(); iter++)
     {
         printf("%s\n", iter->first.c_str());
     }
