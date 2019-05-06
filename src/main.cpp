@@ -52,17 +52,21 @@ void sigHandler(int signum)
 int main(int argc, char ** argv)
 {
     signal(SIGINT, sigHandler);
-    struct timeval tv;
+/*    struct timeval tv;
     for(int i = 0; i< 5; i++)
     {
         gettimeofday(&tv,NULL);
         cout << tv.tv_sec  << "  " << tv.tv_usec << endl;
         sleep(1);
     }
+    */
+    char * sqlstr = "select now() from test";
     testMysqlclient mycqlconn;
-    mycqlconn.mysqlconnect();
+    mycqlconn.mysqlconnect("10.1.24.141", "root", "123456", "test");
+    mycqlconn.mysql_execute(sqlstr, 0);
+
      //   socket_server();
-    testMap();
+//    testMap();
 /*	test_unorderedMap();
 	testGets();
 	char c = 0xff;
