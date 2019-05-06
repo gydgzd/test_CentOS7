@@ -59,7 +59,7 @@ int main(int argc, char ** argv)
 /*    socket_server();
 	test_unorderedMap();
     signal(SIGINT, sigHandler);
-/*    struct timeval tv;
+    struct timeval tv;
     for(int i = 0; i< 5; i++)
     {
         gettimeofday(&tv,NULL);
