@@ -20,6 +20,7 @@ using namespace std;
 
 #include "myProgram.h"
 #include "zmq_wrapper.h"
+#include "testMultithread.h"
 #include "zlib.h"
 #include "zconf.h"
 #include "testMysqlclient.h"
@@ -51,6 +52,12 @@ void sigHandler(int signum)
 }
 int main(int argc, char ** argv)
 {
+    Mycounter mc1;
+    std::thread th{ &Mycounter::counter, &mc1,10, 1 };
+    th.detach();
+    sleep(1);
+/*    socket_server();
+	test_unorderedMap();
     signal(SIGINT, sigHandler);
 /*    struct timeval tv;
     for(int i = 0; i< 5; i++)
