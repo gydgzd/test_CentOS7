@@ -19,6 +19,7 @@ using namespace std;
 
 #include "myProgram.h"
 #include "zmq_wrapper.h"
+#include "testMultithread.h"
 #include "zlib.h"
 #include "zconf.h"
 extern int my_zmq_server ();
@@ -42,6 +43,10 @@ struct test
 };
 int main(int argc, char ** argv)
 {
+    Mycounter mc1;
+    std::thread th{ &Mycounter::counter, &mc1,10, 1 };
+    th.detach();
+    sleep(1);
 /*    socket_server();
 	test_unorderedMap();
 	testGets();
