@@ -5,9 +5,9 @@
  *      Author: gyd
  */
 
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
@@ -15,10 +15,15 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>   // inet_pton
+#include "socketDef.h"
+#include "Mylog.h"
 using namespace std;
 #define DEFAULT_PORT 3402
 #define MAXLINE 4096
 void thread_fun(int socket_fd);
+int myrecv( CONNECTION & client);
+int logMsg(const MSGBODY *pMsg, const char *logHead, int isRecv);
 int socket_server()
 {
     int socket_fd;
@@ -63,20 +68,38 @@ void thread_fun(int socket_fd)
 {
     int conns[2] = {};
     int z = 0;
+
+    struct sockaddr_in server_addr;
+    socklen_t server_len = sizeof(server_addr);
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
     memset(&client_addr, 0, client_len);
 
+    CONNECTION client;
+    char logmsg[512] = "";
+    Mylog mylog;
     //成功返回非负描述字，出错返回-1
     while(true)
     {
-        int conn = accept(socket_fd, (struct sockaddr*)&client_addr, &client_len);
-        if( conn < 0 ) {
-            perror("connect");
+        memset(&client, 0, sizeof(client));
+        client.socket_fd = accept(socket_fd, (struct sockaddr*)&client_addr, &client_len);
+        if( client.socket_fd < 0 ) {
+            sprintf(logmsg, "Accept error: %s (errno: %d)\n", strerror(errno), errno);
             exit(1);
         }
+        // get server address
+        getsockname(client.socket_fd, (struct sockaddr *)&server_addr, &server_len);
+        inet_ntop(AF_INET,(void *)&server_addr.sin_addr, client.serverIP, 64 );
+        client.serverPort = ntohs(server_addr.sin_port);
+
+        // get client address
+        inet_ntop(AF_INET,(void *)&client_addr.sin_addr, client.clientIP, 64 );
+        client.clientPort = ntohs(client_addr.sin_port);
+        client.status = 1;
+        sprintf(logmsg, "INFO: %s:%d --> %s:%d connected", client.clientIP, client.clientPort, client.serverIP, client.serverPort);
+        mylog.logException(logmsg);
         //把连接保存到临时数组中;
-        conns[z] = conn;
+        conns[z] = client.socket_fd;
         z++;
 
         fd_set rfds;
@@ -86,9 +109,9 @@ void thread_fun(int socket_fd)
             FD_ZERO(&rfds);     //把可读文件描述符的集合清空
             FD_SET(0, &rfds);   //把标准输入的文件描述符加入到集合中
             maxfd = 0;
-            FD_SET(conn, &rfds);//把当前连接的文件描述符加入到集合中
-            if(maxfd < conn)    //找出文件描述符集合中最大的文件描述符
-                maxfd = conn;
+            FD_SET(client.socket_fd, &rfds);//把当前连接的文件描述符加入到集合中
+            if(maxfd < client.socket_fd)    //找出文件描述符集合中最大的文件描述符
+                maxfd = client.socket_fd;
             /*设置超时时间*/
             tv.tv_sec = 5;
             tv.tv_usec = 0;
@@ -103,19 +126,21 @@ void thread_fun(int socket_fd)
             }else
             {
                 /*客户端发来了消息*/
-                if(FD_ISSET(conn,&rfds))
+                if(FD_ISSET(client.socket_fd,&rfds))
                 {
                     char buffer[1024];
                     memset(buffer, 0 ,sizeof(buffer));
-                    int len = recv(conn, buffer, sizeof(buffer), 0);
+               /*     int len = recv(client.socket_fd, buffer, sizeof(buffer), 0);
                     {
                         if(0 == len)
                         {
                             printf("客户端程序退出\n");
-                            close(conn);
+                            close(client.socket_fd);
                             break;
                         }
                     }
+                    */
+                    myrecv(client);
                     if(strcmp(buffer, "exit\n") == 0) break;
                     printf("%s\n", buffer);
                     //send(conn, buffer, len , 0);把数据回发给客户端
@@ -145,3 +170,161 @@ void thread_fun(int socket_fd)
     close(socket_fd);
 }
 
+/*
+ * recv thread function
+ *
+ */
+int myrecv( CONNECTION & client)
+{
+    char logmsg[512] = "";
+    char logHead[64] = "";
+    sprintf(logHead, "%s:%d --> %s:%d ", client.clientIP, client.clientPort, client.serverIP, client.serverPort);
+    Mylog mylog;
+    int length = 0;
+    MSGBODY recvMsg;
+    int err = 0;
+    while(true)
+    {
+        recvMsg.length = 0;
+        memset(&recvMsg, 0, sizeof(recvMsg));
+        // recv head, to get the length of msg
+        length = recv(client.socket_fd, &recvMsg, MSGHEAD_LENGTH, 0);
+        if(length == -1)     // recv
+        {
+            err = errno;
+            if(err != 11) // data isnot ready when errno = 11, log other error
+            {
+                sprintf(logmsg, "ERROR: %s recv error: %d--%s",logHead, errno, strerror(errno) );
+                mylog.logException(logmsg);
+                if(err == 9)
+                {
+                    close(client.socket_fd);
+                    client.status = 0;
+                    mylog.logException("ERROR: recv exit.");
+                    return 0;
+                }
+            }
+            //sleep(1);
+            //usleep(10000);                // 10ms
+            length = 0;                   // set it back to 0
+            continue;
+        }
+        else                              // recv success
+        {
+            if( length == 0 )
+            {
+                close(client.socket_fd);
+                client.status = 0;
+                sprintf(logmsg, "INFO: %s: The client exited. Recv thread exit.", logHead);
+                mylog.logException(logmsg);
+                return 0;
+            }
+        }
+        // recv msg, sometimes because of recvMsg.length is 0,it will return 0
+        // so it will confirm that recvMsg.length isnot 0
+        if(0 != recvMsg.length)
+        {
+            printf("type = %d, recvLen = %d,\n", recvMsg.type, recvMsg.length);
+            length = recv(client.socket_fd, recvMsg.msg, recvMsg.length, 0);
+        }
+        if(length == -1)     // recv
+        {
+            err = errno;
+            if(err != 11) // data isnot ready when errno = 11, log other error
+            {
+                sprintf(logmsg, "ERROR: %s recv msg error: %d--%s",logHead, errno, strerror(errno) );
+                mylog.logException(logmsg);
+                if(err == 9)
+                {
+                   close(client.socket_fd);
+                   client.status = 0;
+                   mylog.logException("ERROR: recv exit.");
+                   return 0;
+                }
+            }
+            //sleep(1);
+            usleep(10000);  // 10ms
+            length = 0;  // set it back to 0
+            continue;
+        }
+        else                     // recv success
+        {
+            logMsg(&recvMsg, logHead, 1);
+            int ret = 0;
+            //      ret = msgCheck(&recvBuf);
+            if( length == 0 )
+            {
+                close(client.socket_fd);
+                client.status = 0;
+
+                sprintf(logmsg, "INFO: %s: The client exited. Recv thread exit.", logHead);
+                mylog.logException(logmsg);
+                return 0;
+            }else if(ret == 1)  // heart beat
+            {
+                if(send(client.socket_fd, recvMsg.msg, 31, 0) == -1)
+                {
+                    sprintf(logmsg, "ERROR: %s: heart error: %d--%s",logHead, errno, strerror(errno) );
+                    mylog.logException(logmsg);
+                }
+                mylog.logException("INFO: Get a heartbeat.");
+            }
+            else if(ret == 0)  // valid msg
+            {
+            //  printf("sizeof SendQueue: %lu, RecvQueue: %lu\n", mp_msgQueueSend->size(), mp_msgQueueRecv->size());
+
+            }
+            else
+            {
+                mylog.logException("INFO: msg invalid.");
+            }
+        }// end if,  recv finished
+    }
+    return 0;
+}
+
+int logMsg(const MSGBODY *pMsg, const char *logHead, int isRecv)
+{
+    Mylog mylog;
+    if(pMsg == NULL)
+        return -1;
+    char logmsg[256] = "";
+    char direction[32] = "";
+    if(1 == isRecv)
+        sprintf(direction, "received");
+    else
+        sprintf(direction, "send");
+    if(2 == pMsg->type)             //  hex
+    {
+        try
+        {
+            char *p_hexLog = new char[pMsg->length*3 + 128];    // include the logHead
+            memset(p_hexLog, 0, pMsg->length*3 + 128);
+            sprintf(p_hexLog, "INFO: %s %s: ", logHead, direction);
+            int len = strlen(p_hexLog);
+            for(int i=0; i<pMsg->length; i++)
+                sprintf(p_hexLog+len+3*i, "%02x ", (unsigned char)pMsg->msg[i]);
+            mylog.logException(p_hexLog);
+            delete[] p_hexLog;
+        }catch(bad_alloc& bad)
+        {
+            sprintf(logmsg,"ERROR: Failed to alloc mem when log hex: %s", bad.what());
+            mylog.logException(logmsg);
+        }
+    }
+    else if(1 == pMsg->type)
+    {
+        char logmsg[pMsg->length + 128];
+        memset(logmsg, 0, pMsg->length + 128);
+        sprintf(logmsg, "INFO: %s %s: %s", logHead, direction, pMsg->msg);
+        mylog.logException(logmsg);
+    }
+    else if(0 == pMsg->type)   // int
+    {
+        char logmsg[pMsg->length + 128];
+        memset(logmsg, 0, pMsg->length + 128);
+        sprintf(logmsg, "INFO: %s %s: %d", logHead, direction, *(int *)pMsg->msg);
+        mylog.logException(logmsg);
+    }
+    return 0;
+}

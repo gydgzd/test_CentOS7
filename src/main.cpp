@@ -52,12 +52,14 @@ void sigHandler(int signum)
 }
 int main(int argc, char ** argv)
 {
+
+    socket_server();
+/*
     Mycounter mc1;
     std::thread th{ &Mycounter::counter, &mc1,10, 1 };
     th.detach();
     sleep(1);
-/*    socket_server();
-	test_unorderedMap();
+    test_unorderedMap();
     signal(SIGINT, sigHandler);
     struct timeval tv;
     for(int i = 0; i< 5; i++)
