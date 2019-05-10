@@ -38,7 +38,7 @@ extern int testGets();
 extern int test_unorderedMap();
 extern int testMap();
 extern int socket_server();
-
+extern int test_udpclient();
 struct test
 {
     int a;
@@ -52,8 +52,8 @@ void sigHandler(int signum)
 }
 int main(int argc, char ** argv)
 {
-
-    socket_server();
+    test_udpclient();
+//    socket_server();
 /*
     Mycounter mc1;
     std::thread th{ &Mycounter::counter, &mc1,10, 1 };
