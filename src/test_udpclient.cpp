@@ -28,7 +28,7 @@ int test_udpclient()
 
     bzero(&address,sizeof(address));
     address.sin_family=AF_INET;
-    address.sin_addr.s_addr=inet_addr("127.0.0.1");//这里不一样
+    address.sin_addr.s_addr=inet_addr("172.18.10.11");//这里不一样
     address.sin_port=htons(1234);
 
     //创建一个 UDP socket

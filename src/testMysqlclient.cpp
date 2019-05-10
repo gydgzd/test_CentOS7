@@ -23,7 +23,7 @@ int testMysqlclient::mysqlconnect(const char *host, const char *user, const char
         cout << "mysql_library_init successful" << endl;
     else
     {
-        cout << "mysql_library_init successful" << endl;
+        cout << "mysql_library_init failed" << endl;
     }
 
     mysql_init(&m_mysql);
@@ -33,7 +33,7 @@ int testMysqlclient::mysqlconnect(const char *host, const char *user, const char
     }
     else
     {
-        printf("Error connecting to Mysql!\n");
+        printf("Error connecting to Mysql:%s\n", mysql_error(&m_mysql));
         return -1;
     }
 

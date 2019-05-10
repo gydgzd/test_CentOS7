@@ -69,7 +69,7 @@ int main(int argc, char ** argv)
         sleep(1);
     }
     */
-    char * sqlstr = "select now() from test";
+    char sqlstr[512] = "select now() from test";
     testMysqlclient mycqlconn;
     mycqlconn.mysqlconnect("10.1.24.141", "root", "123456", "test");
     mycqlconn.mysql_execute(sqlstr, 0);
