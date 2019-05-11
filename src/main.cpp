@@ -39,6 +39,8 @@ extern int test_unorderedMap();
 extern int testMap();
 extern int socket_server();
 extern int test_udpclient();
+extern int testPointerOfFunction();
+extern void testFunction();
 struct test
 {
     int a;
@@ -52,7 +54,9 @@ void sigHandler(int signum)
 }
 int main(int argc, char ** argv)
 {
-    test_udpclient();
+    testPointerOfFunction();
+    testFunction();
+//    test_udpclient();
 //    socket_server();
 /*
     Mycounter mc1;
@@ -69,11 +73,11 @@ int main(int argc, char ** argv)
         sleep(1);
     }
     */
-    char sqlstr[512] = "select now() from test";
+/*    char sqlstr[512] = "select now() from test";
     testMysqlclient mycqlconn;
     mycqlconn.mysqlconnect("10.1.24.141", "root", "123456", "test");
     mycqlconn.mysql_execute(sqlstr, 0);
-
+*/
      //   socket_server();
 //    testMap();
 /*	test_unorderedMap();
