@@ -42,6 +42,8 @@ extern int test_udpclient();
 extern int testPointerOfFunction();
 extern void testFunction();
 extern int testRapidJson();
+extern int testCallback();
+extern void testCPPCallback();
 struct test
 {
     int a;
@@ -55,9 +57,11 @@ void sigHandler(int signum)
 }
 int main(int argc, char ** argv)
 {
-    testRapidJson();
-    testPointerOfFunction();
-    testFunction();
+    testCallback();
+    testCPPCallback();
+//    testRapidJson();
+ //   testPointerOfFunction();
+//    testFunction();
 //    test_udpclient();
 //    socket_server();
 /*

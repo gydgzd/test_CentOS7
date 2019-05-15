@@ -19,6 +19,14 @@ int testPointerOfFunction()
 {
     int (*pfun)(int , int )  = max;
     std::cout << pfun(3,6) << std::endl;
+    //
+
     return 0;
 }
+
+
+
+
+
+
 
