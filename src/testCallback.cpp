@@ -27,9 +27,9 @@ int Handle(int x, int (*Callback)(int))
 }
 int testCallback()
 {
-    Handle(4,callback1);
+    int ret = Handle(4,callback1);
 
-    return 0;
+    return (ret == 0);
 }
 
 
