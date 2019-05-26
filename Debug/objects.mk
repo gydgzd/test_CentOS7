@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lzmq -lmysqlcppconn -lmysqlclient -lcjson -lpthread -ldl
+LIBS := -lzmq -lamqpcpp -lrabbitmq -lssl -lcrypto -lmysqlcppconn -lmysqlclient -lcjson -lpthread -ldl
 

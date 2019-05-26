@@ -16,21 +16,43 @@ using namespace rapidjson;
 
 int testRapidJson() {
     // Parse a JSON string into DOM.
-    const char* json = "{ \"meetingID\": \"a8dh31lbjsbakueh2oadw2\",\n"
-            "\"meetingName\": \"信令测试\", \n"
-            "\"date\": \"2019-05-13 08:22:21\",\n"
-            "\"state\": \"0\",\n"
-            "\"dstDevNo\": \"10086\",\n"
-            "\"path\": \"%s\",\n"
-            "\"bits\": 16}";
-
+ //   const char* json = "{  \n\"date\":\"2019-05-29 14:45:36:835699\",\n\"uvpa\":\"10.1.24.213(213抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"B8EA6A06B9B2\",\n\"dstMac\" :\"7C11CD000000\",\n\"srcName\" :\"启明3C\",\n\"dstName\" :\"slave\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835699\",\n\"uvpa\":\"10.1.24.213(213抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD000001\",\n\"dstMac\" :\"7C11CD00C001\",\n\"srcName\" :\"slave\",\n\"dstName\" :\"主服务器\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835921\",\n\"uvpa\":\"10.1.24.235(235抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD00C001\",\n\"dstMac\" :\"7C11CD00A001\",\n\"srcName\" :\"主服务器\",\n\"dstName\" :\"从服务器1\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835921\",\n\"uvpa\":\"10.1.24.235(235抓包)\",\n\"cmd\" :\"8785\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD00A000\",\n\"dstMac\" :\"60F2EF02A690\",\n\"srcName\" :\"从服务器1\",\n\"dstName\" :\"极光18002\" \n} \n";
+    const char* json = "{\"path\":[{ "
+            "\"date\":\"2019-05-29 14:45:36:835699\","
+            "\"uvpa\":\"10.1.24.213(213抓包)\","
+            "\"cmd\" :\"8f85\","
+            "\"subcmd\" :\"6001\","
+            "\"srcMac\" :\"B8EA6A06B9B2\","
+            "\"dstMac\" :\"7C11CD000000\","
+            "\"srcName\" :\"启明3C\","
+            "\"dstName\" :\"slave\" },{ "
+            "\"date\":\"2019-05-29 14:45:36:835699\","
+            "\"uvpa\":\"10.1.24.213(213抓包)\","
+            "\"cmd\" :\"8f85\","
+            "\"subcmd\" :\"6001\","
+            "\"srcMac\" :\"7C11CD000001\","
+            "\"dstMac\" :\"7C11CD00C001\","
+            "\"srcName\" :\"slave\","
+                    "\"dstName\" :\"主服务器\" }] }";
     Document doc;
     if (doc.Parse(json).HasParseError())
     {
         cout << "parse error" << endl;
         return 1;
     }
-
+    Value &path_resolve = doc["path"];
+    if(path_resolve.IsArray() == true )
+    {
+        for (SizeType i = 0; i < path_resolve.Size(); i++) // 使用 SizeType 而不是 size_t
+            printf("path[%d] : %s %s %s-%s %s %s\n", i,
+                    path_resolve[i].FindMember("date")->value.GetString(),
+                    path_resolve[i].FindMember("uvpa")->value.GetString(),
+                    path_resolve[i].FindMember("cmd")->value.GetString(),
+                    path_resolve[i].FindMember("subcmd")->value.GetString(),
+                    path_resolve[i].FindMember("srcMac")->value.GetString(),
+                    path_resolve[i].FindMember("dstMac")->value.GetString()
+                    );
+    }
     // Modify it by DOM.
     if(doc.HasMember("state") == true )
     {
@@ -87,7 +109,7 @@ int testRapidJson() {
     std::cout << buffer.GetString() << std::endl;
 
     // get array
-    Value &path_resolve = doc["path"];
+    path_resolve = doc["path"];
     if(path_resolve.IsArray() == true )
     {
         for (SizeType i = 0; i < path_resolve.Size(); i++) // 使用 SizeType 而不是 size_t

@@ -1,7 +1,7 @@
 /*
  * utf8_gbk_iconv.cpp
  *
- *  Created on: 2018Äê11ÔÂ9ÈÕ
+ *  Created on: 2018ï¿½ï¿½11ï¿½ï¿½9ï¿½ï¿½
  *      Author: gyd
  */
 #include <stdlib.h>
@@ -14,7 +14,7 @@
 #include <sys/stat.h>
 
 
-int code_convert(char *from_charset, char *to_charset, char *inbuf, size_t inlen, char *outbuf, size_t outlen)
+int code_convert(const char *from_charset, const char *to_charset, char *inbuf, size_t inlen, char *outbuf, size_t outlen)
 {
 	iconv_t cd;
 	char *p_in = inbuf;

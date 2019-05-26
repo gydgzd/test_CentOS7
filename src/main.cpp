@@ -44,6 +44,8 @@ extern void testFunction();
 extern int testRapidJson();
 extern int testCallback();
 extern void testCPPCallback();
+extern int testTimer();
+extern int testAmqpcpp();
 struct test
 {
     int a;
@@ -55,11 +57,32 @@ void sigHandler(int signum)
     printf("catch a signal SIGINT, program exit!\n");
     exit(0);
 }
+struct ac
+{
+    string aa;
+};
+
+
 int main(int argc, char ** argv)
 {
-    testCallback();
-    testCPPCallback();
-//    testRapidJson();
+    char path[128] = "";
+#ifdef WINVER
+    cout << _getcwd(path, 128) << endl;
+#elif __linux
+    cout << getcwd(path, 128) << endl;
+#endif
+ //   testAmqpcpp();
+
+    string operations = "hi;peters";
+    string::size_type pos1 = operations.find(';');
+    string op1 = operations.substr(0, pos1);
+
+    ac abc;
+    int n = abc.aa.length();
+
+//    cout << testCallback() << endl;
+//    testCPPCallback();
+    testRapidJson();
  //   testPointerOfFunction();
 //    testFunction();
 //    test_udpclient();
