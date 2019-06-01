@@ -57,11 +57,6 @@ void sigHandler(int signum)
     printf("catch a signal SIGINT, program exit!\n");
     exit(0);
 }
-struct ac
-{
-    string aa;
-};
-
 
 int main(int argc, char ** argv)
 {
@@ -71,15 +66,13 @@ int main(int argc, char ** argv)
 #elif __linux
     cout << getcwd(path, 128) << endl;
 #endif
- //   testAmqpcpp();
+    testAmqpcpp();
 
     string operations = "hi;peters";
     string::size_type pos1 = operations.find(';');
     string op1 = operations.substr(0, pos1);
 
-    ac abc;
-    int n = abc.aa.length();
-
+    cout << testTimer() << endl;
 //    cout << testCallback() << endl;
 //    testCPPCallback();
     testRapidJson();
