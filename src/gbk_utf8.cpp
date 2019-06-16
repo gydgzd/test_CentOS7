@@ -31,7 +31,7 @@ int utf82gbk(char *gbkStr, const char *srcStr, int maxGbkStrlen)
 		return -1;
 	}
 	 //首先先将utf8编码转换为unicode编码 
-	if (NULL == setlocale(LC_ALL, "zh_CN.utf8")) //设置转换为unicode前的码,当前为utf8编码           
+	if (NULL == setlocale(LC_ALL, "zh_CN.utf8")) //设置转换为unicode前的码,当前为utf8编码           
 	{
 		printf("Bad Parameter\n");
 		return -1;
@@ -46,8 +46,8 @@ int utf82gbk(char *gbkStr, const char *srcStr, int maxGbkStrlen)
 	wchar_t *unicodeStr = (wchar_t *) calloc(sizeof(wchar_t), unicodeLen + 1);
 	mbstowcs(unicodeStr, srcStr, strlen(srcStr));
 	//将utf8转换为unicode   
-	//将unicode编码转换为gbk编码    
-	if (NULL == setlocale(LC_ALL, "zh_CN.gbk")) //设置unicode转换后的码,当前为gbk           
+	//将unicode编码转换为gbk编码     
+	if (NULL == setlocale(LC_ALL, "zh_CN.gbk")) //设置unicode转换后的码,当前为gbk           
 	{
 		printf("Bad Parameter\n");
 		return -1;
@@ -58,13 +58,13 @@ int utf82gbk(char *gbkStr, const char *srcStr, int maxGbkStrlen)
 	{
 		printf("Can not Transfer!!!\n");
 		return -1;
-	} else if (gbkLen >= maxGbkStrlen) //判断空间是否足够           
+	} else if (gbkLen >= maxGbkStrlen) //判断空间是否足够           
 	{
 		printf("Dst Str memory not enough\n");
 		return -1;
 	}
 	wcstombs(gbkStr, unicodeStr, gbkLen);
-	gbkStr[gbkLen] = 0; //添加结束符    
+	gbkStr[gbkLen] = 0; //添加结束符     
 	free(unicodeStr);
 	return gbkLen;
 }

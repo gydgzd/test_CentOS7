@@ -95,8 +95,8 @@ int testRapidJson() {
     if (iter != doc.MemberEnd())
         printf("%s\n", iter->value.GetString());
 */
-    Value& s = doc["bits"];
-    s.SetInt(s.GetInt() + 1);
+ //   Value& s = doc["bits"];
+ //   s.SetInt(s.GetInt() + 1);
 
     // Stringify the DOM
     StringBuffer buffer;

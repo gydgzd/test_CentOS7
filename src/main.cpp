@@ -24,6 +24,15 @@ using namespace std;
 #include "zlib.h"
 #include "zconf.h"
 #include "testMysqlclient.h"
+#include "MyHttpServer.h"
+#include "easylogging++.h"    // v9.96.7
+INITIALIZE_EASYLOGGINGPP      // needed by easylogging
+void LogInit()
+{
+    el::Configurations conf("log.conf");
+    el::Loggers::reconfigureAllLoggers(conf);
+}
+//using namespace MyClass;
 extern int my_zmq_server ();
 extern int my_zmq_client ();
 extern int testSQLite(int argc, char **argv);
@@ -57,9 +66,10 @@ void sigHandler(int signum)
     printf("catch a signal SIGINT, program exit!\n");
     exit(0);
 }
-
+extern void myprint();
 int main(int argc, char ** argv)
 {
+    LogInit();
     char path[128] = "";
 #ifdef WINVER
     cout << _getcwd(path, 128) << endl;
@@ -67,6 +77,10 @@ int main(int argc, char ** argv)
     cout << getcwd(path, 128) << endl;
 #endif
     testAmqpcpp();
+    for(int i = 99; i < 700; i++)
+        LOG(INFO) << i << " Hello, world";
+    MyHttpServer myHttp;
+    myHttp.testHttp();
 
     string operations = "hi;peters";
     string::size_type pos1 = operations.find(';');
@@ -76,6 +90,10 @@ int main(int argc, char ** argv)
 //    cout << testCallback() << endl;
 //    testCPPCallback();
     testRapidJson();
+    char* buf = new char[512];
+    buf = createJSON();
+      cout << buf << endl;
+      delete []buf;
  //   testPointerOfFunction();
 //    testFunction();
 //    test_udpclient();
