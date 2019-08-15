@@ -55,6 +55,7 @@ extern int testCallback();
 extern void testCPPCallback();
 extern int testTimer();
 extern int testAmqpcpp();
+extern int test_popen();
 struct test
 {
     int a;
@@ -76,11 +77,12 @@ int main(int argc, char ** argv)
 #elif __linux
     cout << getcwd(path, 128) << endl;
 #endif
-    testAmqpcpp();
-    for(int i = 99; i < 700; i++)
-        LOG(INFO) << i << " Hello, world";
-    MyHttpServer myHttp;
-    myHttp.testHttp();
+//    testAmqpcpp();
+//    for(int i = 99; i < 700; i++)
+//        LOG(INFO) << i << " Hello, world";
+    test_popen();
+//    MyHttpServer myHttp;
+//    myHttp.testHttp();
 
     string operations = "hi;peters";
     string::size_type pos1 = operations.find(';');

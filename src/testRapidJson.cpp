@@ -17,7 +17,7 @@ using namespace rapidjson;
 int testRapidJson() {
     // Parse a JSON string into DOM.
  //   const char* json = "{  \n\"date\":\"2019-05-29 14:45:36:835699\",\n\"uvpa\":\"10.1.24.213(213抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"B8EA6A06B9B2\",\n\"dstMac\" :\"7C11CD000000\",\n\"srcName\" :\"启明3C\",\n\"dstName\" :\"slave\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835699\",\n\"uvpa\":\"10.1.24.213(213抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD000001\",\n\"dstMac\" :\"7C11CD00C001\",\n\"srcName\" :\"slave\",\n\"dstName\" :\"主服务器\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835921\",\n\"uvpa\":\"10.1.24.235(235抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD00C001\",\n\"dstMac\" :\"7C11CD00A001\",\n\"srcName\" :\"主服务器\",\n\"dstName\" :\"从服务器1\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835921\",\n\"uvpa\":\"10.1.24.235(235抓包)\",\n\"cmd\" :\"8785\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD00A000\",\n\"dstMac\" :\"60F2EF02A690\",\n\"srcName\" :\"从服务器1\",\n\"dstName\" :\"极光18002\" \n} \n";
-    const char* json = "{\"path\":[{ "
+/* */   const char* json = "{\"path\":[{ "
             "\"date\":\"2019-05-29 14:45:36:835699\","
             "\"uvpa\":\"10.1.24.213(213抓包)\","
             "\"cmd\" :\"8f85\","
@@ -33,14 +33,31 @@ int testRapidJson() {
             "\"srcMac\" :\"7C11CD000001\","
             "\"dstMac\" :\"7C11CD00C001\","
             "\"srcName\" :\"slave\","
-                    "\"dstName\" :\"主服务器\" }] }";
+            "\"dstName\" :\"主服务器\" }] }";
+
+ //   const char* json = "{\"funcName\":\"get_probe_version\",\"param\":{\"uuid\":\"servers_9fc1a187-f420-4320-a4d3-ab332b4ff906\",\"userId\":\"99f371f98c5342c3a5477bddae1b45ad\"}}";
     Document doc;
+    Value::ConstMemberIterator iter;
     if (doc.Parse(json).HasParseError())
     {
         cout << "parse error" << endl;
         return 1;
     }
-    Value &path_resolve = doc["path"];
+    // get string of an object
+    //  Value &path_resolve = doc["path"];
+    Value path_resolve;
+    iter = doc.FindMember("path");           // can be faster
+    if (iter != doc.MemberEnd())
+        path_resolve = doc["path"];
+
+    StringBuffer buffer1;
+    //    Writer<StringBuffer> writer(buffer);    //write filtered the blanks
+    //    doc.Accept(writer);
+        PrettyWriter<StringBuffer> pretty_writer1(buffer1);
+        path_resolve.Accept(pretty_writer1);
+        std::cout << buffer1.GetString() << std::endl;
+
+
     if(path_resolve.IsArray() == true )
     {
         for (SizeType i = 0; i < path_resolve.Size(); i++) // 使用 SizeType 而不是 size_t
@@ -62,7 +79,7 @@ int testRapidJson() {
         stat.SetDouble(9.09);
     }
 
-    Value::ConstMemberIterator iter = doc.FindMember("type");
+    iter = doc.FindMember("type");
     if (iter != doc.MemberEnd())
         printf("%s\n", iter->value.GetString());
     else
@@ -91,7 +108,7 @@ int testRapidJson() {
     // Fluent API
     //path.PushBack(object1, allocator).PushBack(object2, allocator);
 /*
-    iter = doc.FindMember("state");      // can be faster
+    iter = doc.FindMember("state");           // can be faster
     if (iter != doc.MemberEnd())
         printf("%s\n", iter->value.GetString());
 */
@@ -109,7 +126,10 @@ int testRapidJson() {
     std::cout << buffer.GetString() << std::endl;
 
     // get array
-    path_resolve = doc["path"];
+    iter = doc.FindMember("path");           // can be faster
+    if (iter != doc.MemberEnd())
+        path_resolve = doc["path"];
+
     if(path_resolve.IsArray() == true )
     {
         for (SizeType i = 0; i < path_resolve.Size(); i++) // 使用 SizeType 而不是 size_t
