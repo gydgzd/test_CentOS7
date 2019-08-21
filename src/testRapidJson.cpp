@@ -45,31 +45,47 @@ int testRapidJson() {
     }
     // get string of an object
     //  Value &path_resolve = doc["path"];
-    Value path_resolve;
+
     iter = doc.FindMember("path");           // can be faster
     if (iter != doc.MemberEnd())
-        path_resolve = doc["path"];
-
-    StringBuffer buffer1;
-    //    Writer<StringBuffer> writer(buffer);    //write filtered the blanks
-    //    doc.Accept(writer);
-        PrettyWriter<StringBuffer> pretty_writer1(buffer1);
-        path_resolve.Accept(pretty_writer1);
-        std::cout << buffer1.GetString() << std::endl;
-
-
-    if(path_resolve.IsArray() == true )
     {
-        for (SizeType i = 0; i < path_resolve.Size(); i++) // 使用 SizeType 而不是 size_t
-            printf("path[%d] : %s %s %s-%s %s %s\n", i,
-                    path_resolve[i].FindMember("date")->value.GetString(),
-                    path_resolve[i].FindMember("uvpa")->value.GetString(),
-                    path_resolve[i].FindMember("cmd")->value.GetString(),
-                    path_resolve[i].FindMember("subcmd")->value.GetString(),
-                    path_resolve[i].FindMember("srcMac")->value.GetString(),
-                    path_resolve[i].FindMember("dstMac")->value.GetString()
-                    );
+        Value &path_resolve = doc["path"];
+        if(path_resolve.IsArray() == true )
+        {
+            printf("Is Array\n");
+        }
+        if(doc["path"].IsArray() == true )   // Value path_resolve = doc["path"];  may have a problem
+        {
+            printf("Is Array\n");
+        }
+
+        StringBuffer buffer1;
+        //    Writer<StringBuffer> writer(buffer);    //writer filtered the blanks
+        //    doc.Accept(writer);
+            PrettyWriter<StringBuffer> pretty_writer1(buffer1);
+            path_resolve.Accept(pretty_writer1);
+     //       std::cout << buffer1.GetString() << std::endl;
+
+
+        if(path_resolve.IsArray() == true )
+        {
+            for (SizeType i = 0; i < path_resolve.Size(); i++) // 使用 SizeType 而不是 size_t
+                printf("path[%d] : %s %s %s-%s %s %s\n", i,
+                        path_resolve[i].FindMember("date")->value.GetString(),
+                        path_resolve[i].FindMember("uvpa")->value.GetString(),
+                        path_resolve[i].FindMember("cmd")->value.GetString(),
+                        path_resolve[i].FindMember("subcmd")->value.GetString(),
+                        path_resolve[i].FindMember("srcMac")->value.GetString(),
+                        path_resolve[i].FindMember("dstMac")->value.GetString()
+                        );
+        }
     }
+
+
+
+
+
+
     // Modify it by DOM.
     if(doc.HasMember("state") == true )
     {
@@ -128,18 +144,18 @@ int testRapidJson() {
     // get array
     iter = doc.FindMember("path");           // can be faster
     if (iter != doc.MemberEnd())
-        path_resolve = doc["path"];
-
-    if(path_resolve.IsArray() == true )
     {
-        for (SizeType i = 0; i < path_resolve.Size(); i++) // 使用 SizeType 而不是 size_t
-            printf("path[%d] : %s %s-%s %s %s\n", i, path_resolve[i].FindMember("date")->value.GetString(),
-                    path_resolve[i].FindMember("cmd")->value.GetString(),
-                    path_resolve[i].FindMember("subcmd")->value.GetString(),
-                    path_resolve[i].FindMember("src")->value.GetString(),
-                    path_resolve[i].FindMember("dst")->value.GetString() );
+        Value& path_resolve = doc["path"];
+        if(path_resolve.IsArray() == true )
+        {
+            for (SizeType i = 0; i < path_resolve.Size(); i++) // 使用 SizeType 而不是 size_t
+                printf("path[%d] : %s %s-%s %s %s\n", i, path_resolve[i].FindMember("date")->value.GetString(),
+                        path_resolve[i].FindMember("cmd")->value.GetString(),
+                        path_resolve[i].FindMember("subcmd")->value.GetString(),
+                        path_resolve[i].FindMember("src")->value.GetString(),
+                        path_resolve[i].FindMember("dst")->value.GetString() );
+        }
     }
-
     return 0;
 }
 

@@ -80,7 +80,7 @@ int main(int argc, char ** argv)
 //    testAmqpcpp();
 //    for(int i = 99; i < 700; i++)
 //        LOG(INFO) << i << " Hello, world";
-    test_popen();
+//    test_popen();
 //    MyHttpServer myHttp;
 //    myHttp.testHttp();
 
