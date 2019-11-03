@@ -81,11 +81,6 @@ int testRapidJson() {
         }
     }
 
-
-
-
-
-
     // Modify it by DOM.
     if(doc.HasMember("state") == true )
     {

@@ -70,12 +70,35 @@ void sigHandler(int signum)
 extern void myprint();
 int main(int argc, char ** argv)
 {
+    std::string str = "12345";
+    cout << str.substr(0, 3)<<endl;
+    char addr[64] = ":::58443";
+    char ip[32] = "";
+    int port = 0;
+    //sscanf("0:0::58080","%[^*:]:%d", ip, &port);
+    char * pos = strrchr(addr, ':');
+    if(pos != NULL)
+    {
+        strncpy(ip, addr, pos - addr);
+        sscanf(pos + 1,"%d", &port);
+    }
+    cout<< ip << ":" << port << endl;
     LogInit();
     char path[128] = "";
 #ifdef WINVER
     cout << _getcwd(path, 128) << endl;
 #elif __linux
     cout << getcwd(path, 128) << endl;
+
+    std::string fileName = "/proc/self/exe";
+    size_t linksize = 256;
+    char buffer[256] = {0};
+    if(readlink(fileName.c_str() , buffer, linksize) !=-1 )
+    {
+        fileName = buffer;
+    }
+
+    printf("Application File name = %s\n", fileName.c_str());
 #endif
 //    testAmqpcpp();
 //    for(int i = 99; i < 700; i++)
@@ -120,7 +143,7 @@ int main(int argc, char ** argv)
     mycqlconn.mysqlconnect("10.1.24.141", "root", "123456", "test");
     mycqlconn.mysql_execute(sqlstr, 0);
 */
-     //   socket_server();
+
 //    testMap();
 /*	test_unorderedMap();
 	testGets();
