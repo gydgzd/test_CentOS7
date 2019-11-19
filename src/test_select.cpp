@@ -19,7 +19,7 @@
 #include "socketDef.h"
 #include "Mylog.h"
 using namespace std;
-#define DEFAULT_PORT 3402
+#define DEFAULT_PORT 3401
 #define MAXLINE 4096
 void thread_fun(int socket_fd);
 int myrecv( CONNECTION & client);
@@ -66,7 +66,7 @@ int socket_server()
 //
 void thread_fun(int socket_fd)
 {
-    int conns[2] = {};
+    int conns[4096] = {};
     int z = 0;
 
     struct sockaddr_in server_addr;
@@ -102,21 +102,21 @@ void thread_fun(int socket_fd)
         conns[z] = client.socket_fd;
         z++;
 
-        fd_set rfds;
+        fd_set read_fds, babckup_fds;
         struct timeval tv;
         int retval, maxfd;
         while(1) {
-            FD_ZERO(&rfds);     //把可读文件描述符的集合清空
-            FD_SET(0, &rfds);   //把标准输入的文件描述符加入到集合中
+            FD_ZERO(&read_fds);     //把可读文件描述符的集合清空
+            FD_SET(0, &read_fds);   //把标准输入的文件描述符加入到集合中
             maxfd = 0;
-            FD_SET(client.socket_fd, &rfds);//把当前连接的文件描述符加入到集合中
+            FD_SET(client.socket_fd, &read_fds);//把当前连接的文件描述符加入到集合中
             if(maxfd < client.socket_fd)    //找出文件描述符集合中最大的文件描述符
                 maxfd = client.socket_fd;
             /*设置超时时间*/
             tv.tv_sec = 5;
             tv.tv_usec = 0;
-
-            retval = select(maxfd+1, &rfds, NULL, NULL, &tv);
+            read_fds = babckup_fds;
+            retval = select(maxfd+1, &read_fds, NULL, NULL, &tv);
             if(retval == -1){
                 printf("select出错，客户端程序退出\n");
                 break;
@@ -126,7 +126,7 @@ void thread_fun(int socket_fd)
             }else
             {
                 /*客户端发来了消息*/
-                if(FD_ISSET(client.socket_fd,&rfds))
+                if(FD_ISSET(client.socket_fd,&read_fds))
                 {
                     char buffer[1024];
                     memset(buffer, 0 ,sizeof(buffer));
@@ -146,7 +146,7 @@ void thread_fun(int socket_fd)
                     //send(conn, buffer, len , 0);把数据回发给客户端
                 }
                 /*用户输入信息了,开始处理信息并发送*/
-                if(FD_ISSET(0, &rfds))
+                if(FD_ISSET(0, &read_fds))
                 {
                     char buf[1024];
                 //    fgets(buf, sizeof(buf), stdin);
@@ -189,10 +189,10 @@ int myrecv( CONNECTION & client)
         memset(&recvMsg, 0, sizeof(recvMsg));
         // recv head, to get the length of msg
         length = recv(client.socket_fd, &recvMsg, MSGHEAD_LENGTH, 0);
-        if(length == -1)     // recv
+        if(length == -1)     // recv error
         {
             err = errno;
-            if(err != 11) // data isnot ready when errno = 11, log other error
+            if(err != 11)   // data isnot ready when errno = 11, log other error
             {
                 sprintf(logmsg, "ERROR: %s recv error: %d--%s",logHead, errno, strerror(errno) );
                 mylog.logException(logmsg);
@@ -220,65 +220,60 @@ int myrecv( CONNECTION & client)
                 return 0;
             }
         }
-        // recv msg, sometimes because of recvMsg.length is 0,it will return 0
-        // so it will confirm that recvMsg.length isnot 0
+        // recv msg head to get length, then get msg by length
         if(0 != recvMsg.length)
         {
             printf("type = %d, recvLen = %d,\n", recvMsg.type, recvMsg.length);
             length = recv(client.socket_fd, recvMsg.msg, recvMsg.length, 0);
-        }
-        if(length == -1)     // recv
-        {
-            err = errno;
-            if(err != 11) // data isnot ready when errno = 11, log other error
+            if(length == -1)     // recv
             {
-                sprintf(logmsg, "ERROR: %s recv msg error: %d--%s",logHead, errno, strerror(errno) );
-                mylog.logException(logmsg);
-                if(err == 9)
+                err = errno;
+                if(err != 11) // data isnot ready when errno = 11, log other error
                 {
-                   close(client.socket_fd);
-                   client.status = 0;
-                   mylog.logException("ERROR: recv exit.");
-                   return 0;
-                }
-            }
-            //sleep(1);
-            usleep(10000);  // 10ms
-            length = 0;  // set it back to 0
-            continue;
-        }
-        else                     // recv success
-        {
-            logMsg(&recvMsg, logHead, 1);
-            int ret = 0;
-            //      ret = msgCheck(&recvBuf);
-            if( length == 0 )
-            {
-                close(client.socket_fd);
-                client.status = 0;
-
-                sprintf(logmsg, "INFO: %s: The client exited. Recv thread exit.", logHead);
-                mylog.logException(logmsg);
-                return 0;
-            }else if(ret == 1)  // heart beat
-            {
-                if(send(client.socket_fd, recvMsg.msg, 31, 0) == -1)
-                {
-                    sprintf(logmsg, "ERROR: %s: heart error: %d--%s",logHead, errno, strerror(errno) );
+                    sprintf(logmsg, "ERROR: %s recv msg error: %d--%s",logHead, errno, strerror(errno) );
                     mylog.logException(logmsg);
                 }
-                mylog.logException("INFO: Get a heartbeat.");
+                if(err == 9)
+                {
+                    close(client.socket_fd);
+                    client.status = 0;
+                    mylog.logException("ERROR: recv exit.");
+                    return 0;
+                }
+                //sleep(1);
+                usleep(10000);  // 10ms
+                length = 0;  // set it back to 0
+                continue;
             }
-            else if(ret == 0)  // valid msg
+            else                     // recv success
             {
-            //  printf("sizeof SendQueue: %lu, RecvQueue: %lu\n", mp_msgQueueSend->size(), mp_msgQueueRecv->size());
 
-            }
-            else
-            {
-                mylog.logException("INFO: msg invalid.");
-            }
-        }// end if,  recv finished
+            /*    int ret = 0;
+                ret = msgCheck(&recvBuf);
+                if(ret == 0)  // valid msg
+                {
+                //  printf("sizeof SendQueue: %lu, RecvQueue: %lu\n", mp_msgQueueSend->size(), mp_msgQueueRecv->size());
+
+                }
+                else
+                {
+                    mylog.logException("INFO: msg invalid.");
+                }*/
+                if( length == 0 )
+                {
+                    close(client.socket_fd);
+                    client.status = 0;
+                    sprintf(logmsg, "INFO: %s: The client exited. Recv thread exit.", logHead);
+                    mylog.logException(logmsg);
+                    return 0;
+                }else
+                {
+                    logMsg(&recvMsg, logHead, 1);
+                }
+
+            }// end if,  recv finished
+        }
+
     }
     return 0;
 }
