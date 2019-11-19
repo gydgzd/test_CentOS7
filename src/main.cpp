@@ -122,7 +122,7 @@ int main(int argc, char ** argv)
  //   testPointerOfFunction();
 //    testFunction();
 //    test_udpclient();
-//    socket_server();
+    socket_server();
 /*
     Mycounter mc1;
     std::thread th{ &Mycounter::counter, &mc1,10, 1 };

@@ -3,3 +3,6 @@
 /Release/src
 /Release/test
 /log/
+/myeasylog.log
+/.settings
+.settings/language.settings.xml
