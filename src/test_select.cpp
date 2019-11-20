@@ -14,6 +14,8 @@
 #include <thread>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>       // fcntl
 #include <netinet/in.h>
 #include <arpa/inet.h>   // inet_pton
 #include "socketDef.h"
@@ -22,13 +24,13 @@ using namespace std;
 #define DEFAULT_PORT 3401
 #define MAXLINE 4096
 void thread_fun(int socket_fd);
-int myrecv( CONNECTION & client);
+int myrecv(int fd, struct sockaddr_in *client_addr, char *buffer );//
+int getCONN(int fd, struct sockaddr_in *client_addr, CONNECTION & client);
 int logMsg(const MSGBODY *pMsg, const char *logHead, int isRecv);
 int socket_server()
 {
     int socket_fd;
     struct sockaddr_in servaddr;
-    char buff[4096];
     // initialize
     if( (socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1 )
     {
@@ -63,14 +65,18 @@ int socket_server()
     close(socket_fd);
     return 0;
 }
-//
+// ensure that socket_fd is valid before use this function
 void thread_fun(int socket_fd)
 {
+    vector<int> v_fds;
+    v_fds.push_back(socket_fd);
     int conns[4096] = {};
     int z = 0;
+    struct timeval tv;  // = {5, 0};
+    /*设置超时时间*/
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
 
-    struct sockaddr_in server_addr;
-    socklen_t server_len = sizeof(server_addr);
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
     memset(&client_addr, 0, client_len);
@@ -78,104 +84,114 @@ void thread_fun(int socket_fd)
     CONNECTION client;
     char logmsg[512] = "";
     Mylog mylog;
-    //成功返回非负描述字，出错返回-1
+    fd_set read_fds, test_fds;
+    FD_ZERO(&read_fds);                    //把可读文件描述符的集合清空
+    FD_ZERO(&test_fds);
+    FD_SET(socket_fd, &read_fds);          //把监听的文件描述符加入到集合中
+    int retval;
     while(true)
     {
-        memset(&client, 0, sizeof(client));
-        client.socket_fd = accept(socket_fd, (struct sockaddr*)&client_addr, &client_len);
-        if( client.socket_fd < 0 ) {
-            sprintf(logmsg, "Accept error: %s (errno: %d)\n", strerror(errno), errno);
-            exit(1);
+        test_fds = read_fds;
+        int nread = 0;
+        retval = select(FD_SETSIZE, &test_fds, NULL, NULL, &tv);
+        if(retval == 0)
+            continue;
+        if(retval < 0)
+        {
+            printf("select error: %d - %s\n", errno, strerror(errno));
+            exit(-1);
         }
-        // get server address
-        getsockname(client.socket_fd, (struct sockaddr *)&server_addr, &server_len);
-        inet_ntop(AF_INET,(void *)&server_addr.sin_addr, client.serverIP, 64 );
-        client.serverPort = ntohs(server_addr.sin_port);
-
-        // get client address
-        inet_ntop(AF_INET,(void *)&client_addr.sin_addr, client.clientIP, 64 );
-        client.clientPort = ntohs(client_addr.sin_port);
-        client.status = 1;
-        sprintf(logmsg, "INFO: %s:%d --> %s:%d connected", client.clientIP, client.clientPort, client.serverIP, client.serverPort);
-        mylog.logException(logmsg);
-        //把连接保存到临时数组中;
-        conns[z] = client.socket_fd;
-        z++;
-
-        fd_set read_fds, babckup_fds;
-        struct timeval tv;
-        int retval, maxfd;
-        while(1) {
-            FD_ZERO(&read_fds);     //把可读文件描述符的集合清空
-            FD_SET(0, &read_fds);   //把标准输入的文件描述符加入到集合中
-            maxfd = 0;
-            FD_SET(client.socket_fd, &read_fds);//把当前连接的文件描述符加入到集合中
-            if(maxfd < client.socket_fd)    //找出文件描述符集合中最大的文件描述符
-                maxfd = client.socket_fd;
-            /*设置超时时间*/
-            tv.tv_sec = 5;
-            tv.tv_usec = 0;
-            read_fds = babckup_fds;
-            retval = select(maxfd+1, &read_fds, NULL, NULL, &tv);
-            if(retval == -1){
-                printf("select出错，客户端程序退出\n");
-                break;
-            }else if(retval == 0){
-                printf("服务端没有任何输入信息，并且客户端也没有信息到来，waiting...\n");
-                continue;
-            }else
+        for(unsigned int idx = 0; idx < v_fds.size(); ) //扫描所有的文件描述符
+        {
+            if(FD_ISSET(v_fds[idx],&test_fds))     //找到相关文件描述符
             {
-                /*客户端发来了消息*/
-                if(FD_ISSET(client.socket_fd,&read_fds))
+                if(v_fds[idx] == socket_fd)        //判断是否为服务器套接字，是则表示为客户请求连接。
                 {
-                    char buffer[1024];
-                    memset(buffer, 0 ,sizeof(buffer));
-               /*     int len = recv(client.socket_fd, buffer, sizeof(buffer), 0);
+                    memset(&client, 0, sizeof(client));
+
+                    client.socket_fd = accept(socket_fd, (struct sockaddr*)&client_addr, &client_len);
+                    if( client.socket_fd < 0 ) {
+                        sprintf(logmsg, "Accept error: %s (errno: %d)\n", strerror(errno), errno);
+                        exit(1);
+                    }
+                    getCONN(client.socket_fd, &client_addr, client);
+                    sprintf(logmsg, "INFO: %s:%d --> %s:%d connected", client.clientIP, client.clientPort, client.serverIP, client.serverPort);
+                    mylog.logException(logmsg);
+                    //set nonlocking mode
+                    int flags;
+                    if( (flags = fcntl(client.socket_fd, F_GETFL, 0)) < 0)
                     {
-                        if(0 == len)
+                        sprintf(logmsg, "ERROR: %s:%d --> %s:%d: fcntl error: %d--%s. Give up the connection.",client.clientIP, client.clientPort, client.serverIP, client.serverPort, errno, strerror(errno) );
+                        mylog.logException(logmsg);
+                        continue;
+                    }
+                    fcntl(client.socket_fd, F_SETFL, flags | O_NONBLOCK);
+                    FD_SET(client.socket_fd, &read_fds);
+
+                    //把连接保存到临时数组中;
+                    v_fds.push_back(client.socket_fd);
+
+                }
+                else
+                {
+                    ioctl(v_fds[idx], FIONREAD, &nread);  //取得数据量交给nread
+                    if(nread == 0)                //客户数据请求完毕，关闭套接字，从集合中清除相应描述符
+                    {
+                        close(v_fds[idx]);
+                        FD_CLR(v_fds[idx], &read_fds);     //去掉关闭的fd
+                        printf("removing client on fd %d\n", v_fds[idx]);
+                        auto iter = v_fds.begin();
+                        for( ; iter != v_fds.end(); )
                         {
-                            printf("客户端程序退出\n");
-                            close(client.socket_fd);
-                            break;
+                            if(*iter == v_fds[idx])
+                            {
+                                v_fds.erase(iter);
+                                continue;
+                            }
+                            else
+                                iter++;
                         }
                     }
-                    */
-                    myrecv(client);
-                    if(strcmp(buffer, "exit\n") == 0) break;
-                    printf("%s\n", buffer);
-                    //send(conn, buffer, len , 0);把数据回发给客户端
-                }
-                /*用户输入信息了,开始处理信息并发送*/
-                if(FD_ISSET(0, &read_fds))
-                {
-                    char buf[1024];
-                //    fgets(buf, sizeof(buf), stdin);
-                    sprintf(buf, "hello");
-                    //printf("you are send %s", buf);
-                    for(int i=0; i<z; i++)
+                    /*处理客户数据请求*/
+                    else
                     {
-                        int ret = send(conns[i], buf, sizeof(buf), 0);
-                        if( ret < 0 )
-                        {
-                            printf("ERROR: send msg error: %s(errno: %d)\n", strerror(errno), errno);
-                        }
+                        char buffer[1024];
+                        memset(buffer, 0 ,sizeof(buffer));
+                        myrecv(v_fds[idx], &client_addr, buffer);
+                        if(strcmp(buffer, "exit\n") == 0) break;
+                        printf("%s\n", buffer);
 
+                        MSGBODY msg;
+                        msg.type = 1;
+                        sprintf((char *)msg.msg, "hello");
+                        msg.length = strlen((char *)msg.msg);
+                        for(int i=0; i<z; i++)
+                        {
+                            int ret = send(conns[i], &msg, sizeof(msg.type) + sizeof(msg.length)+ msg.length, 0);
+                            if( ret < 0 )
+                            {
+                                printf("ERROR: send msg error: %s(errno: %d)\n", strerror(errno), errno);
+                            }else
+                            {
+                                printf("send %s\n", (char *)msg.msg);
+                            }
+                        }
                     }
                 }
-            }
-        } // end of second while
-
-    } // end of first while
-
-    close(socket_fd);
+            } // end of if(FD_ISSET(fd,&test_fds))
+            idx++;
+        } // end of for
+    } // end of while
 }
 
 /*
  * recv thread function
  *
  */
-int myrecv( CONNECTION & client)
+int myrecv(int fd, struct sockaddr_in *client_addr, char *buffer )
 {
+    CONNECTION client;
+    getCONN(fd, client_addr, client);
     char logmsg[512] = "";
     char logHead[64] = "";
     sprintf(logHead, "%s:%d --> %s:%d ", client.clientIP, client.clientPort, client.serverIP, client.serverPort);
@@ -201,13 +217,11 @@ int myrecv( CONNECTION & client)
                     close(client.socket_fd);
                     client.status = 0;
                     mylog.logException("ERROR: recv exit.");
-                    return 0;
+                    return -1;
                 }
             }
             //sleep(1);
-            //usleep(10000);                // 10ms
-            length = 0;                   // set it back to 0
-            continue;
+            return 0;
         }
         else                              // recv success
         {
@@ -238,7 +252,7 @@ int myrecv( CONNECTION & client)
                     close(client.socket_fd);
                     client.status = 0;
                     mylog.logException("ERROR: recv exit.");
-                    return 0;
+                    return -1;
                 }
                 //sleep(1);
                 usleep(10000);  // 10ms
@@ -265,7 +279,7 @@ int myrecv( CONNECTION & client)
                     client.status = 0;
                     sprintf(logmsg, "INFO: %s: The client exited. Recv thread exit.", logHead);
                     mylog.logException(logmsg);
-                    return 0;
+                    return -1;
                 }else
                 {
                     logMsg(&recvMsg, logHead, 1);
@@ -273,8 +287,26 @@ int myrecv( CONNECTION & client)
 
             }// end if,  recv finished
         }
-
     }
+    return 0;
+}
+
+int getCONN(int fd, struct sockaddr_in *client_addr, CONNECTION & client)
+{
+    struct sockaddr_in server_addr;
+    socklen_t server_len = sizeof(server_addr);
+    memset(&server_addr, 0, server_len);
+
+    // get server address
+    getsockname(fd, (struct sockaddr *)&server_addr, &server_len);
+    inet_ntop(AF_INET,(void *)&server_addr.sin_addr, client.serverIP, 64 );
+    client.serverPort = ntohs(server_addr.sin_port);
+
+    // get client address
+    inet_ntop(AF_INET,(void *)&client_addr->sin_addr, client.clientIP, 64 );
+    client.clientPort = ntohs(client_addr->sin_port);
+    client.socket_fd = fd;
+    client.status = 1;
     return 0;
 }
 
