@@ -104,8 +104,8 @@ int main(int argc, char ** argv)
 //    for(int i = 99; i < 700; i++)
 //        LOG(INFO) << i << " Hello, world";
 //    test_popen();
-//    MyHttpServer myHttp;
-//    myHttp.testHttp();
+    MyHttpServer myHttp;
+    myHttp.testTcpServer();
 
     string operations = "hi;peters";
     string::size_type pos1 = operations.find(';');

@@ -7,12 +7,14 @@
 
 #ifndef MYHTTPSERVER_H_
 #define MYHTTPSERVER_H_
+
+
 #include "mongoose.h"
+
 #include <map>
 #include <string>
 #include <iostream>
 #include <functional>
-
 
 //namespace MyClass {
 
@@ -22,7 +24,7 @@ public:
     virtual ~MyHttpServer();
 
     int testHttp();
-
+    int testTcpServer();
 };
 
 //} /* namespace MyClass */

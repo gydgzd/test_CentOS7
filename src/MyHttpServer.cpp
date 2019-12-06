@@ -13,7 +13,8 @@
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 
-static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
+static void http_handler(struct mg_connection *nc, int ev, void *ev_data)
+{
     switch (ev)
     {
         case MG_EV_ACCEPT:
@@ -37,10 +38,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             std::string str_uri    = std::string(hm->uri.p,     hm->uri.len);
             std::cout<< str_req << " \n"<< str_body << "\n" << str_method << "\n" <<str_uri<<std::endl;
             char addr[32];
-            mg_sock_addr_to_str(&nc->sa, addr, sizeof(addr),
-                                MG_SOCK_STRINGIFY_IP | MG_SOCK_STRINGIFY_PORT);
-            printf("%p: %.*s %.*s\r\n", nc, (int) hm->method.len, hm->method.p,
-                   (int) hm->uri.len, hm->uri.p);
+            mg_sock_addr_to_str(&nc->sa, addr, sizeof(addr), MG_SOCK_STRINGIFY_IP | MG_SOCK_STRINGIFY_PORT);
+
             mg_send_response_line(nc, 200, "Content-Type: text/html\r\n Connection: close");
             mg_printf(nc, "\r\n<h1>Hello, %s!</h1>\r\n You asked for %.*s\r\n", addr, (int) hm->uri.len, hm->uri.p);
             nc->flags |= MG_F_SEND_AND_CLOSE;
@@ -52,6 +51,20 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
     }
+}
+static void tcp_handler(struct mg_connection *nc, int ev, void *ev_data)
+{
+  struct mbuf *io = &nc->recv_mbuf;
+
+  switch (ev) {
+    case MG_EV_RECV:
+      // This event handler implements simple TCP echo server
+      mg_send(nc, io->buf, io->len);  // Echo received data back
+      mbuf_remove(io, io->len);      // Discard data from recv buffer
+      break;
+    default:
+      break;
+  }
 }
 MyHttpServer::MyHttpServer() {
     // TODO Auto-generated constructor stub
@@ -69,7 +82,7 @@ int MyHttpServer::testHttp()
 
     mg_mgr_init(&mgr, NULL);
     printf("Starting web server on port %s\n", s_http_port);
-    nc = mg_bind(&mgr, s_http_port, ev_handler);
+    nc = mg_bind(&mgr, s_http_port, http_handler);
     if (nc == NULL) {
       printf("Failed to create listener\n");
       return 1;
@@ -86,6 +99,27 @@ int MyHttpServer::testHttp()
     mg_mgr_free(&mgr);
     return 0;
 }
+int MyHttpServer::testTcpServer()
+{
+    struct mg_mgr mgr;
+    struct mg_connection *c;
 
+    mg_mgr_init(&mgr, NULL);
+    char port[] = "3401";
+    if ((c = mg_bind(&mgr, port, tcp_handler)) == NULL)
+    {
+      fprintf(stderr, "mg_bind(%s) failed\n", port);
+      exit(EXIT_FAILURE);
+    }
+//    mg_set_protocol_socks(c);
+
+    printf("Starting socks5 proxy server on %s\n", port);
+    for (;;) {
+      mg_mgr_poll(&mgr, 1000);
+    }
+    mg_mgr_free(&mgr);
+
+    return 0;
+}
 
 //} /* namespace MyClass */
