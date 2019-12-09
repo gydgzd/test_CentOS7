@@ -25,6 +25,7 @@ using namespace std;
 #include "zconf.h"
 #include "testMysqlclient.h"
 #include "MyHttpServer.h"
+#include "MyHttpClient.h"
 #include "easylogging++.h"    // v9.96.7
 INITIALIZE_EASYLOGGINGPP      // needed by easylogging
 void LogInit()
@@ -105,8 +106,9 @@ int main(int argc, char ** argv)
 //        LOG(INFO) << i << " Hello, world";
 //    test_popen();
     MyHttpServer myHttp;
-    myHttp.testTcpServer();
-
+//    myHttp.testTcpServer();
+    MyHttpClient myclient;
+    myclient.testHttpClient();
     string operations = "hi;peters";
     string::size_type pos1 = operations.find(';');
     string op1 = operations.substr(0, pos1);
