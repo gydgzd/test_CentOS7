@@ -26,6 +26,7 @@ using namespace std;
 #include "testMysqlclient.h"
 #include "MyHttpServer.h"
 #include "MyHttpClient.h"
+#include "TestPcap.h"
 #include "easylogging++.h"    // v9.96.7
 INITIALIZE_EASYLOGGINGPP      // needed by easylogging
 void LogInit()
@@ -105,10 +106,13 @@ int main(int argc, char ** argv)
 //    for(int i = 99; i < 700; i++)
 //        LOG(INFO) << i << " Hello, world";
 //    test_popen();
-    MyHttpServer myHttp;
+//    MyHttpServer myHttp;
 //    myHttp.testTcpServer();
-    MyHttpClient myclient;
-    myclient.testHttpClient();
+//    MyHttpClient myclient;
+//    myclient.testHttpClient();
+    TestPcap mypcap;
+    mypcap.testPcap();
+
     string operations = "hi;peters";
     string::size_type pos1 = operations.find(';');
     string op1 = operations.substr(0, pos1);
