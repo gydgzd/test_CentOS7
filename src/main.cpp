@@ -28,6 +28,8 @@ using namespace std;
 #include "MyHttpClient.h"
 #include "TestPcap.h"
 #include "easylogging++.h"    // v9.96.7
+//#include "nf-queue.c"
+#include "nfqnl_test.c"
 INITIALIZE_EASYLOGGINGPP      // needed by easylogging
 void LogInit()
 {
@@ -70,6 +72,8 @@ void sigHandler(int signum)
     exit(0);
 }
 extern void myprint();
+int nfqnl_test();
+//int test_nf_queue();
 int main(int argc, char ** argv)
 {
     std::string str = "12345";
@@ -111,8 +115,9 @@ int main(int argc, char ** argv)
 //    MyHttpClient myclient;
 //    myclient.testHttpClient();
     TestPcap mypcap;
-    mypcap.testPcap();
-
+//    mypcap.testPcap();
+    nfqnl_test();
+//    test_nf_queue();
     string operations = "hi;peters";
     string::size_type pos1 = operations.find(';');
     string op1 = operations.substr(0, pos1);

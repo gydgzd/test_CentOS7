@@ -242,7 +242,7 @@ TestPcap::~TestPcap() {
 
 int TestPcap::testPcap()
 {
-    char dev[256] = "ens37";           /* capture device name */
+    char dev[256] = "ens33";           /* capture device name */
     char errbuf[PCAP_ERRBUF_SIZE];      /* error buffer */
     pcap_t *handle;             /* packet capture handle */
 
