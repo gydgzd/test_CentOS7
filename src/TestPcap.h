@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <pcap.h>
-
+#include <unistd.h>
 
 
 #define APP_NAME        "sniffex"
@@ -118,5 +118,5 @@ private:
 
 
 };
-
+extern int m_socketRaw;
 #endif /* TESTPCAP_H_ */

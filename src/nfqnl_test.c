@@ -9,6 +9,10 @@
 
 #include <libnetfilter_queue/libnetfilter_queue.h>
 #include <libnetfilter_queue/linux_nfnetlink_queue.h>
+// iptables -A OUTPUT -picmp  -j NFQUEUE --queue-num 0
+// ping xxxx
+// then will receive packet from queue 0
+
 /* returns packet id */
 static uint32_t print_pkt (struct nfq_data *tb)
 {
@@ -18,7 +22,7 @@ static uint32_t print_pkt (struct nfq_data *tb)
 	uint32_t mark, ifi, uid, gid;
 	int ret;
 	unsigned char *data, *secdata;
-
+    // get msg of packet
 	ph = nfq_get_msg_packet_hdr(tb);
 	if (ph) {
 		id = ntohl(ph->packet_id);
@@ -39,11 +43,11 @@ static uint32_t print_pkt (struct nfq_data *tb)
 	mark = nfq_get_nfmark(tb);
 	if (mark)
 		printf("mark=%u ", mark);
-
+    // get index of the net adapter when packet come in
 	ifi = nfq_get_indev(tb);
 	if (ifi)
 		printf("indev=%u ", ifi);
-
+	// get index of the net adapter when packet go out
 	ifi = nfq_get_outdev(tb);
 	if (ifi)
 		printf("outdev=%u ", ifi);
@@ -126,22 +130,22 @@ int nfqnl_test()
 
 	printf("setting flags to request UID and GID\n");
 	if (nfq_set_queue_flags(qh, NFQA_CFG_F_UID_GID, NFQA_CFG_F_UID_GID)) {
-		fprintf(stderr, "This kernel version does not allow to "
-				"retrieve process UID/GID.\n");
+		fprintf(stderr, "This kernel version does not allow to retrieve process UID/GID.\n");
 	}
 
 	printf("setting flags to request security context\n");
 	if (nfq_set_queue_flags(qh, NFQA_CFG_F_SECCTX, NFQA_CFG_F_SECCTX)) {
-		fprintf(stderr, "This kernel version does not allow to "
-				"retrieve security context.\n");
+		fprintf(stderr, "This kernel version does not allow to retrieve security context.\n");
 	}
 
 	printf("Waiting for packets...\n");
 
 	fd = nfq_fd(h);
 
-	for (;;) {
-		if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
+	for (;;)
+	{
+		if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0)
+		{
 			printf("pkt received\n");
 			nfq_handle_packet(h, buf, rv);
 			continue;

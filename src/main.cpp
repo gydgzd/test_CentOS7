@@ -114,7 +114,7 @@ int main(int argc, char ** argv)
 //    myHttp.testTcpServer();
 //    MyHttpClient myclient;
 //    myclient.testHttpClient();
-    TestPcap mypcap;
+//    TestPcap mypcap;
 //    mypcap.testPcap();
     nfqnl_test();
 //    test_nf_queue();
