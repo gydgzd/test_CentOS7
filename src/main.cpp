@@ -30,6 +30,7 @@ using namespace std;
 #include "easylogging++.h"    // v9.96.7
 //#include "nf-queue.c"
 #include "nfqnl_test.c"
+#include "ping.cpp"
 INITIALIZE_EASYLOGGINGPP      // needed by easylogging
 void LogInit()
 {
@@ -76,6 +77,27 @@ int nfqnl_test();
 //int test_nf_queue();
 int main(int argc, char ** argv)
 {
+    //test ping
+    try
+    {
+      if (argc != 2)
+      {
+        std::cerr << "Usage: ping <host>" << std::endl;
+  #if !defined(BOOST_WINDOWS)
+        std::cerr << "(You may need to run this program as root.)" << std::endl;
+  #endif
+        return 1;
+      }
+
+      boost::asio::io_service io_service;
+      pinger p(io_service, argv[1]);
+      io_service.run();
+    }
+    catch (std::exception& e)
+    {
+      std::cerr << "Exception: " << e.what() << std::endl;
+    }
+    //
     std::string str = "12345";
     cout << str.substr(0, 3)<<endl;
     char addr[64] = ":::58443";
