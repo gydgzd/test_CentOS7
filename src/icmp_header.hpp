@@ -75,20 +75,19 @@ template <typename Iterator>
 void compute_checksum(icmp_header& header,
     Iterator body_begin, Iterator body_end)
 {
-  unsigned int sum = (header.type() << 8) + header.code()
-    + header.identifier() + header.sequence_number();
+    unsigned int sum = (header.type() << 8) + header.code() + header.identifier() + header.sequence_number();
 
-  Iterator body_iter = body_begin;
-  while (body_iter != body_end)
-  {
-    sum += (static_cast<unsigned char>(*body_iter++) << 8);
-    if (body_iter != body_end)
-      sum += static_cast<unsigned char>(*body_iter++);
-  }
+    Iterator body_iter = body_begin;
+    while (body_iter != body_end)
+    {
+        sum += (static_cast<unsigned char>(*body_iter++) << 8);
+        if (body_iter != body_end)
+            sum += static_cast<unsigned char>(*body_iter++);
+    }
 
-  sum = (sum >> 16) + (sum & 0xFFFF);
-  sum += (sum >> 16);
-  header.checksum(static_cast<unsigned short>(~sum));
+    sum = (sum >> 16) + (sum & 0xFFFF);
+    sum += (sum >> 16);
+    header.checksum(static_cast<unsigned short>(~sum));
 }
 
 #endif // ICMP_HEADER_HPP
