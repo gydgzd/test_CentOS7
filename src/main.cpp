@@ -78,6 +78,17 @@ int nfqnl_test();
 //int test_nf_queue();
 int main(int argc, char ** argv)
 {
+    char path[128] = "";
+#ifdef WINVER
+    cout << _getcwd(path, 128) << endl;
+#elif __linux
+    cout << getcwd(path, 128) << endl;
+
+    RawSocket ms;
+    for(int i = 0; i< 1; i++)
+    {
+        ms.sendPkt();
+    }
     //test ping
     try
     {
@@ -113,11 +124,7 @@ int main(int argc, char ** argv)
     }
     cout<< ip << ":" << port << endl;
     LogInit();
-    char path[128] = "";
-#ifdef WINVER
-    cout << _getcwd(path, 128) << endl;
-#elif __linux
-    cout << getcwd(path, 128) << endl;
+
 
     std::string fileName = "/proc/self/exe";
     size_t linksize = 256;
