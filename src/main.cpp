@@ -32,6 +32,7 @@ using namespace std;
 #include "nfqnl_test.c"
 #include "ping.cpp"
 #include "RawSocket.h"
+#include "myTunTap.h"
 INITIALIZE_EASYLOGGINGPP      // needed by easylogging
 void LogInit()
 {
@@ -83,6 +84,9 @@ int main(int argc, char ** argv)
     cout << _getcwd(path, 128) << endl;
 #elif __linux
     cout << getcwd(path, 128) << endl;
+
+    myTunTap tun1;
+    tun1.dev_write();
 
     RawSocket ms;
     for(int i = 0; i< 1; i++)
