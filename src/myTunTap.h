@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include <fcntl.h>        // open
 #include <sys/ioctl.h>    // ioctl
 #include <unistd.h>       // close
@@ -29,7 +30,7 @@ public:
     myTunTap();
     virtual ~myTunTap();
 
-    int dev_alloc(char *dev, int flags);
+    int dev_alloc(char *dev, short flags);
     int dev_read();
     int dev_write();
 private:
