@@ -18,6 +18,7 @@
 #include <sys/ioctl.h>    // ioctl
 #include <unistd.h>       // close
 #include <net/if.h>
+#include <net/route.h>
 #include <linux/if_tun.h>
 #include <arpa/inet.h>
 
