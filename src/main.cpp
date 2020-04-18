@@ -22,6 +22,7 @@ using namespace std;
 #include "zmq_wrapper.h"
 #include "testMultithread.h"
 #include "zlib.h"
+#include "Logger.h"
 #include "zconf.h"
 #include "testMysqlclient.h"
 #include "MyHttpServer.h"
@@ -63,6 +64,7 @@ extern void testCPPCallback();
 extern int testTimer();
 extern int testAmqpcpp();
 extern int test_popen();
+extern int test();           // Logger
 struct test
 {
     int a;
@@ -79,6 +81,7 @@ int nfqnl_test();
 //int test_nf_queue();
 int main(int argc, char ** argv)
 {
+    test();
     char path[128] = "";
     char b = 0x1234;
     printf("%c", b);

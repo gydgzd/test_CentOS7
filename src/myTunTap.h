@@ -13,10 +13,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include <fcntl.h>        // open
 #include <sys/ioctl.h>    // ioctl
 #include <unistd.h>       // close
 #include <net/if.h>
+#include <net/route.h>
 #include <linux/if_tun.h>
 #include <arpa/inet.h>
 
@@ -29,7 +31,7 @@ public:
     myTunTap();
     virtual ~myTunTap();
 
-    int dev_alloc(char *dev, int flags);
+    int dev_alloc(char *dev, short flags);
     int dev_read();
     int dev_write();
 private:
