@@ -80,6 +80,8 @@ int nfqnl_test();
 int main(int argc, char ** argv)
 {
     char path[128] = "";
+    char b = 0x1234;
+    printf("%c", b);
 #ifdef WINVER
     cout << _getcwd(path, 128) << endl;
 #elif __linux
