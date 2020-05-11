@@ -88,6 +88,13 @@ int main(int argc, char ** argv)
 #elif __linux
     cout << getcwd(path, 128) << endl;
 
+    vector<int> vi;
+    for(int i = 0; i < 64; i++)
+    {
+        cout << "size:" << vi.size() << "capacity:" << vi.capacity() << endl;
+        vi.push_back(i);
+    }
+
     myTunTap tun1;
     tun1.dev_write();
 
