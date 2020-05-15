@@ -34,6 +34,8 @@ using namespace std;
 #include "ping.cpp"
 #include "RawSocket.h"
 #include "myTunTap.h"
+#include "Mylog.h"
+#include "Mytimer.h"
 INITIALIZE_EASYLOGGINGPP      // needed by easylogging
 void LogInit()
 {
@@ -95,8 +97,8 @@ int main(int argc, char ** argv)
         vi.push_back(i);
     }
 
-    myTunTap tun1;
-    tun1.dev_write();
+/*    myTunTap tun1;
+   tun1.dev_write();
 
     RawSocket ms;
     for(int i = 0; i< 1; i++)
@@ -123,6 +125,7 @@ int main(int argc, char ** argv)
     {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
+    */
     //
     std::string str = "12345";
     cout << str.substr(0, 3)<<endl;
@@ -138,7 +141,12 @@ int main(int argc, char ** argv)
     }
     cout<< ip << ":" << port << endl;
     LogInit();
-
+    Mytimer t1;
+    t1.start();
+    Mylog mylog;
+    for(int i = 0; i < 100; i++)
+        mylog.logException("hei, fopen");
+    cout << t1.stop() << endl;
 
     std::string fileName = "/proc/self/exe";
     size_t linksize = 256;
