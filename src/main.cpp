@@ -170,7 +170,7 @@ int main(int argc, char ** argv)
 //    myclient.testHttpClient();
 //    TestPcap mypcap;
 //    mypcap.testPcap();
-    nfqnl_test();
+//    nfqnl_test();
 //    test_nf_queue();
     string operations = "hi;peters";
     string::size_type pos1 = operations.find(';');
