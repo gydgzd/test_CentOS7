@@ -57,27 +57,6 @@ int testRapidJson() {
     fseek(fp, 0, SEEK_SET);
     fread(json, sizeof(char), fileSize + 1, fp);
 
-    // Parse a JSON string into DOM.
- //   const char* json = "{  \n\"date\":\"2019-05-29 14:45:36:835699\",\n\"uvpa\":\"10.1.24.213(213抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"B8EA6A06B9B2\",\n\"dstMac\" :\"7C11CD000000\",\n\"srcName\" :\"启明3C\",\n\"dstName\" :\"slave\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835699\",\n\"uvpa\":\"10.1.24.213(213抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD000001\",\n\"dstMac\" :\"7C11CD00C001\",\n\"srcName\" :\"slave\",\n\"dstName\" :\"主服务器\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835921\",\n\"uvpa\":\"10.1.24.235(235抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD00C001\",\n\"dstMac\" :\"7C11CD00A001\",\n\"srcName\" :\"主服务器\",\n\"dstName\" :\"从服务器1\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835921\",\n\"uvpa\":\"10.1.24.235(235抓包)\",\n\"cmd\" :\"8785\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD00A000\",\n\"dstMac\" :\"60F2EF02A690\",\n\"srcName\" :\"从服务器1\",\n\"dstName\" :\"极光18002\" \n} \n";
-/*    const char* json = "{\"path\":[{ "
-            "\"date\":\"2019-05-29 14:45:36:835699\","
-            "\"uvpa\":\"10.1.24.213(213抓包)\","
-            "\"cmd\" :\"8f85\","
-            "\"subcmd\" :\"6001\","
-            "\"srcMac\" :\"B8EA6A06B9B2\","
-            "\"dstMac\" :\"7C11CD000000\","
-            "\"srcName\" :\"启明3C\","
-            "\"dstName\" :\"slave\" },{ "
-            "\"date\":\"2019-05-29 14:45:36:835699\","
-            "\"uvpa\":\"10.1.24.213(213抓包)\","
-            "\"cmd\" :\"8f85\","
-            "\"subcmd\" :\"6001\","
-            "\"srcMac\" :\"7C11CD000001\","
-            "\"dstMac\" :\"7C11CD00C001\","
-            "\"srcName\" :\"slave\","
-            "\"dstName\" :\"主服务器\" }] }";
-*/
- //   const char* json = "{\"funcName\":\"get_probe_version\",\"param\":{\"uuid\":\"servers_9fc1a187-f420-4320-a4d3-ab332b4ff906\",\"userId\":\"99f371f98c5342c3a5477bddae1b45ad\"}}";
     Document doc;
     Value::ConstMemberIterator iter;
     if (doc.Parse(json).HasParseError())
@@ -91,46 +70,52 @@ int testRapidJson() {
     iter = doc.FindMember("Device");           // can be faster
     if (iter != doc.MemberEnd())
     {
-        Value &path_resolve = doc["Device"];
-        if(path_resolve.IsArray() == true )
+        Value &device = doc["Device"];
+        if(device.IsArray() == true )
         {
             printf("Is Array\n");
-        }
-        if(doc["Device"].IsArray() == true )   // Value path_resolve = doc["path"];  may have a problem
-        {
-            printf("Is Array\n");
+            for (SizeType i = 0; i < device.Size(); i++) // 使用 SizeType 而不是 size_t
+                printf("Device[%d] : %s %s %s-%s %s %s\n", i,
+                        device[i].FindMember("date")->value.GetString(),
+                        device[i].FindMember("uvpa")->value.GetString(),
+                        device[i].FindMember("cmd")->value.GetString(),
+                        device[i].FindMember("subcmd")->value.GetString(),
+                        device[i].FindMember("srcMac")->value.GetString(),
+                        device[i].FindMember("dstMac")->value.GetString()
+                        );
         }
 
         StringBuffer buffer1;
         //    Writer<StringBuffer> writer(buffer);    //writer filtered the blanks
         //    doc.Accept(writer);
             PrettyWriter<StringBuffer> pretty_writer1(buffer1);
-            path_resolve.Accept(pretty_writer1);
-     //       std::cout << buffer1.GetString() << std::endl;
+            device.Accept(pretty_writer1);
+            std::cout << buffer1.GetString() << std::endl;
 
-
-        if(path_resolve.IsArray() == true )
-        {
-            for (SizeType i = 0; i < path_resolve.Size(); i++) // 使用 SizeType 而不是 size_t
-                printf("path[%d] : %s %s %s-%s %s %s\n", i,
-                        path_resolve[i].FindMember("date")->value.GetString(),
-                        path_resolve[i].FindMember("uvpa")->value.GetString(),
-                        path_resolve[i].FindMember("cmd")->value.GetString(),
-                        path_resolve[i].FindMember("subcmd")->value.GetString(),
-                        path_resolve[i].FindMember("srcMac")->value.GetString(),
-                        path_resolve[i].FindMember("dstMac")->value.GetString()
-                        );
-        }
     }
 
     // Modify it by DOM.
     if(doc.HasMember("VirtualMac") == true )
     {
-        cout << doc["VirtualMac"].GetString() << " len: " << doc["VirtualMac"].GetStringLength() << " type: " << doc["VirtualMac"].GetType() << endl;
+        cout << doc["VirtualMac"].GetString()
+                << " len: " << doc["VirtualMac"].GetStringLength()
+                << " type: " << doc["VirtualMac"].GetType() << endl;
 
-        Value& stat = doc["TUN_NAME"];
-        stat.SetDouble(9.09);
+        Value& stat = doc["VirtualMac"];
+        stat.SetString("00:11:22:33:44:55");
     }
+    //
+    iter = doc.FindMember("VirtualNum");        // can be faster
+    if (iter != doc.MemberEnd())
+        printf("%s\n", iter->value.GetString());
+    else
+        cout << "No VirtualNum" << endl;
+    //
+    iter = doc.FindMember("TUN_NAME");
+    if (iter != doc.MemberEnd())
+        printf("%s\n", iter->value.GetString());
+    else
+        cout << "No TUN_NAME" << endl;
     //
     iter = doc.FindMember("TUN_IP");
     if (iter != doc.MemberEnd())
@@ -159,32 +144,25 @@ int testRapidJson() {
     Document::AllocatorType& allocator = doc.GetAllocator();
 
     Value object1(kObjectType);
-    object1.AddMember("date",   "2019-05-13 08:22:21",allocator);
-    object1.AddMember("cmd",    "8f85",                allocator);
-    object1.AddMember("subcmd", "8785",                allocator);
-    object1.AddMember("src",    "ff01",                allocator);
-    object1.AddMember("dst",    "0002",                allocator);
+    object1.AddMember("IP",   "10.0.0.2",    allocator);
+    object1.AddMember("os",       "linux",   allocator);
+    object1.AddMember("mac",      "00:22",    allocator);
+    object1.AddMember("virmac",   "ff01",    allocator);
+    object1.AddMember("virnum",   "0002",    allocator);
 
     Value object2(kObjectType);
-    object2.AddMember("date",   "2019-05-13 08:22:22",allocator);
-    object2.AddMember("cmd",    "8f85",                allocator);
-    object2.AddMember("subcmd", "8785",                allocator);
-    object2.AddMember("src",    "0002",                allocator);
-    object2.AddMember("dst",    "ef21",                allocator);
+    object2.AddMember("IP",   "10.0.0.3",    allocator);
+    object2.AddMember("os",    "8f85",       allocator);
+    object2.AddMember("mac",    "00:ff",     allocator);
+    object2.AddMember("virmac",    "00:33",   allocator);
+    object2.AddMember("virnum",    "ef21",   allocator);
     // add array
-    Value& path = doc["path"];   // This time we uses non-const reference.
-    path.SetArray();
-    path.PushBack(object1, allocator);
-    path.PushBack(object2, allocator);
+    Value& lines = doc["Device"];   // This time we uses non-const reference. doc["Device"] must be exist
+    lines.SetArray();
+    lines.PushBack(object1, allocator);
+    lines.PushBack(object2, allocator);
     // Fluent API
-    //path.PushBack(object1, allocator).PushBack(object2, allocator);
-/*
-    iter = doc.FindMember("state");           // can be faster
-    if (iter != doc.MemberEnd())
-        printf("%s\n", iter->value.GetString());
-*/
- //   Value& s = doc["bits"];
- //   s.SetInt(s.GetInt() + 1);
+    //lines.PushBack(object1, allocator).PushBack(object2, allocator);
 
     // Stringify the DOM
     StringBuffer buffer1;
@@ -192,23 +170,23 @@ int testRapidJson() {
 //    doc.Accept(writer);
     PrettyWriter<StringBuffer> pretty_writer(buffer1);
     doc.Accept(pretty_writer);
-
+    pretty_writer.StartObject();
     // Output {"project":"rapidjson","stars":11}
     std::cout << buffer1.GetString() << std::endl;
 
     // get array
-    iter = doc.FindMember("path");           // can be faster
+    iter = doc.FindMember("lines");           // can be faster
     if (iter != doc.MemberEnd())
     {
-        Value& path_resolve = doc["path"];
-        if(path_resolve.IsArray() == true )
+        Value& records = doc["lines"];
+        if(records.IsArray() == true )
         {
-            for (SizeType i = 0; i < path_resolve.Size(); i++) // 使用 SizeType 而不是 size_t
-                printf("path[%d] : %s %s-%s %s %s\n", i, path_resolve[i].FindMember("date")->value.GetString(),
-                        path_resolve[i].FindMember("cmd")->value.GetString(),
-                        path_resolve[i].FindMember("subcmd")->value.GetString(),
-                        path_resolve[i].FindMember("src")->value.GetString(),
-                        path_resolve[i].FindMember("dst")->value.GetString() );
+            for (SizeType i = 0; i < records.Size(); i++) // 使用 SizeType 而不是 size_t
+                printf("path[%d] : %s %s-%s %s %s\n", i, records[i].FindMember("IP")->value.GetString(),
+                        records[i].FindMember("os")->value.GetString(),
+                        records[i].FindMember("mac")->value.GetString(),
+                        records[i].FindMember("virmac")->value.GetString(),
+                        records[i].FindMember("virnum")->value.GetString() );
         }
     }
     return 0;
