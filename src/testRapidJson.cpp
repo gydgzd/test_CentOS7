@@ -9,15 +9,57 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
+#include <sys/stat.h>           // mkdir stat
 #include <iostream>
-
+#include <memory>               // shared_ptr
 using namespace std;
 using namespace rapidjson;
 
+int getFileSize(const char * filename)
+{
+    struct stat buf;
+    long size = 0;
+    if((stat(filename,&buf)!=-1))
+    {
+        size = buf.st_size;
+    }
+    else
+    {
+        printf("getFileSize failed: %d - %s\n" , errno, strerror(errno));;
+        return -1;
+    }
+    return size;
+}
+void CloseFile(FILE *fp)
+{
+    if(fp == nullptr)
+        return;
+    fclose(fp);
+    fp = nullptr;
+    printf("file closed\n");
+}
 int testRapidJson() {
+    char filename[256] = "conf.json";
+    long fileSize = getFileSize(filename);
+
+    FILE *fp = fopen(filename , "r");
+    shared_ptr<FILE> fileptr(fp, CloseFile);
+    if(fp == NULL) {
+        perror("打开文件时发生错误");
+        return(-1);
+    }
+
+    fseek(fp, 0, SEEK_END);
+    fileSize = ftell(fp);
+
+    char *json = new char[fileSize + 64];
+    shared_ptr<char> buffer(json, std::default_delete<char[]>());
+    fseek(fp, 0, SEEK_SET);
+    fread(json, sizeof(char), fileSize + 1, fp);
+
     // Parse a JSON string into DOM.
  //   const char* json = "{  \n\"date\":\"2019-05-29 14:45:36:835699\",\n\"uvpa\":\"10.1.24.213(213抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"B8EA6A06B9B2\",\n\"dstMac\" :\"7C11CD000000\",\n\"srcName\" :\"启明3C\",\n\"dstName\" :\"slave\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835699\",\n\"uvpa\":\"10.1.24.213(213抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD000001\",\n\"dstMac\" :\"7C11CD00C001\",\n\"srcName\" :\"slave\",\n\"dstName\" :\"主服务器\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835921\",\n\"uvpa\":\"10.1.24.235(235抓包)\",\n\"cmd\" :\"8f85\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD00C001\",\n\"dstMac\" :\"7C11CD00A001\",\n\"srcName\" :\"主服务器\",\n\"dstName\" :\"从服务器1\" \n},\n{ \n\"date\":\"2019-05-29 14:45:36:835921\",\n\"uvpa\":\"10.1.24.235(235抓包)\",\n\"cmd\" :\"8785\",\n\"subcmd\" :\"6001\",\n\"srcMac\" :\"7C11CD00A000\",\n\"dstMac\" :\"60F2EF02A690\",\n\"srcName\" :\"从服务器1\",\n\"dstName\" :\"极光18002\" \n} \n";
-/* */   const char* json = "{\"path\":[{ "
+/*    const char* json = "{\"path\":[{ "
             "\"date\":\"2019-05-29 14:45:36:835699\","
             "\"uvpa\":\"10.1.24.213(213抓包)\","
             "\"cmd\" :\"8f85\","
@@ -34,7 +76,7 @@ int testRapidJson() {
             "\"dstMac\" :\"7C11CD00C001\","
             "\"srcName\" :\"slave\","
             "\"dstName\" :\"主服务器\" }] }";
-
+*/
  //   const char* json = "{\"funcName\":\"get_probe_version\",\"param\":{\"uuid\":\"servers_9fc1a187-f420-4320-a4d3-ab332b4ff906\",\"userId\":\"99f371f98c5342c3a5477bddae1b45ad\"}}";
     Document doc;
     Value::ConstMemberIterator iter;
@@ -46,15 +88,15 @@ int testRapidJson() {
     // get string of an object
     //  Value &path_resolve = doc["path"];
 
-    iter = doc.FindMember("path");           // can be faster
+    iter = doc.FindMember("Device");           // can be faster
     if (iter != doc.MemberEnd())
     {
-        Value &path_resolve = doc["path"];
+        Value &path_resolve = doc["Device"];
         if(path_resolve.IsArray() == true )
         {
             printf("Is Array\n");
         }
-        if(doc["path"].IsArray() == true )   // Value path_resolve = doc["path"];  may have a problem
+        if(doc["Device"].IsArray() == true )   // Value path_resolve = doc["path"];  may have a problem
         {
             printf("Is Array\n");
         }
@@ -82,19 +124,37 @@ int testRapidJson() {
     }
 
     // Modify it by DOM.
-    if(doc.HasMember("state") == true )
+    if(doc.HasMember("VirtualMac") == true )
     {
-        cout << doc["state"].GetString() << " len: " << doc["state"].GetStringLength() << " type: " << doc["state"].GetType() << endl;
+        cout << doc["VirtualMac"].GetString() << " len: " << doc["VirtualMac"].GetStringLength() << " type: " << doc["VirtualMac"].GetType() << endl;
 
-        Value& stat = doc["state"];
+        Value& stat = doc["TUN_NAME"];
         stat.SetDouble(9.09);
     }
-
-    iter = doc.FindMember("type");
+    //
+    iter = doc.FindMember("TUN_IP");
     if (iter != doc.MemberEnd())
         printf("%s\n", iter->value.GetString());
     else
-        cout << "No type" << endl;
+        cout << "No TUN_IP" << endl;
+    //
+    iter = doc.FindMember("TUN_NETMASK");
+    if (iter != doc.MemberEnd())
+        printf("%s\n", iter->value.GetString());
+    else
+        cout << "No TUN_NETMASK" << endl;
+    //
+    iter = doc.FindMember("TUN_GATEWAY");
+    if (iter != doc.MemberEnd())
+        printf("%s\n", iter->value.GetString());
+    else
+        cout << "No TUN_GATEWAY" << endl;
+    //
+    iter = doc.FindMember("TUN_MTU");
+    if (iter != doc.MemberEnd())
+        printf("%s\n", iter->value.GetString());
+    else
+        cout << "No TUN_MTU" << endl;
     // add member
     Document::AllocatorType& allocator = doc.GetAllocator();
 
@@ -127,14 +187,14 @@ int testRapidJson() {
  //   s.SetInt(s.GetInt() + 1);
 
     // Stringify the DOM
-    StringBuffer buffer;
+    StringBuffer buffer1;
 //    Writer<StringBuffer> writer(buffer);    //write filtered the blanks
 //    doc.Accept(writer);
-    PrettyWriter<StringBuffer> pretty_writer(buffer);
+    PrettyWriter<StringBuffer> pretty_writer(buffer1);
     doc.Accept(pretty_writer);
 
     // Output {"project":"rapidjson","stars":11}
-    std::cout << buffer.GetString() << std::endl;
+    std::cout << buffer1.GetString() << std::endl;
 
     // get array
     iter = doc.FindMember("path");           // can be faster
