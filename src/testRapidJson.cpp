@@ -9,6 +9,8 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
+#include "rapidjson/filereadstream.h"
+
 #include <sys/stat.h>           // mkdir stat
 #include <iostream>
 #include <memory>               // shared_ptr
@@ -55,18 +57,17 @@ int testRapidJson() {
     char *json = new char[fileSize + 64];
     shared_ptr<char> buffer(json, std::default_delete<char[]>());
     fseek(fp, 0, SEEK_SET);
-    fread(json, sizeof(char), fileSize + 1, fp);
-
+//    fread(json, sizeof(char), fileSize + 1, fp);
+    // windows下使用fread读取到的内容会解析失败，要用 FileReadStream
+    FileReadStream readStream(fp, json, fileSize);
     Document doc;
-    Value::ConstMemberIterator iter;
-    if (doc.Parse(json).HasParseError())
+    if (doc.ParseStream(readStream).HasParseError())
     {
         cout << "parse error" << endl;
         return 1;
     }
     // get string of an object
-    //  Value &path_resolve = doc["path"];
-
+    Value::ConstMemberIterator iter;
     iter = doc.FindMember("Device");           // can be faster
     if (iter != doc.MemberEnd())
     {
@@ -84,14 +85,6 @@ int testRapidJson() {
                         device[i].FindMember("dstMac")->value.GetString()
                         );
         }
-
-        StringBuffer buffer1;
-        //    Writer<StringBuffer> writer(buffer);    //writer filtered the blanks
-        //    doc.Accept(writer);
-            PrettyWriter<StringBuffer> pretty_writer1(buffer1);
-            device.Accept(pretty_writer1);
-            std::cout << buffer1.GetString() << std::endl;
-
     }
 
     // Modify it by DOM.
@@ -170,7 +163,6 @@ int testRapidJson() {
 //    doc.Accept(writer);
     PrettyWriter<StringBuffer> pretty_writer(buffer1);
     doc.Accept(pretty_writer);
-    pretty_writer.StartObject();
     // Output {"project":"rapidjson","stars":11}
     std::cout << buffer1.GetString() << std::endl;
 
