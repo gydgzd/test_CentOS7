@@ -41,7 +41,7 @@ void CloseFile(FILE *fp)
     printf("file closed\n");
 }
 int testRapidJson() {
-    char filename[256] = "conf.json";
+    char filename[256] = "config.json";
     long fileSize = getFileSize(filename);
 
     FILE *fp = fopen(filename , "r");
