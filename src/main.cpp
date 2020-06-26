@@ -150,6 +150,12 @@ int main(int argc, char ** argv)
         mylog.logException("hei, fopen");
     cout << t1.stop() << endl;
 
+    Mytimer tt;
+    Logger mylogger;
+    tt.start();
+    for(int i = 0; i < 100; i++)
+        mylogger.log("hei, fopen");
+    cout << tt.stop() << endl;
     std::string fileName = "/proc/self/exe";
     size_t linksize = 256;
     char buffer[256] = {0};
