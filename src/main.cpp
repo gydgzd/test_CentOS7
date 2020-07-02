@@ -36,6 +36,7 @@ using namespace std;
 #include "myTunTap.h"
 #include "Mylog.h"
 #include "Mytimer.h"
+#include "HttpServerLibevent.h"
 INITIALIZE_EASYLOGGINGPP      // needed by easylogging
 void LogInit()
 {
@@ -80,9 +81,12 @@ void sigHandler(int signum)
 }
 extern void myprint();
 int nfqnl_test();
+
 //int test_nf_queue();
 int main(int argc, char ** argv)
 {
+    HttpServerLibevent lvhttp;
+    lvhttp.testLibevent();
     test();
     char path[128] = "";
     char b = 0x1234;

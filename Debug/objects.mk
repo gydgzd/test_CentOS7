@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lzmq -lboost_system -lpcap -lamqpcpp -lrabbitmq -lssl -lcrypto -lmysqlcppconn -lmysqlclient -lcjson -lpthread -ldl -lnfnetlink -lnetfilter_queue -lmnl
+LIBS := -lzmq -levent -lboost_system -lpcap -lamqpcpp -lrabbitmq -lssl -lcrypto -lmysqlcppconn -lmysqlclient -lcjson -lpthread -ldl -lnfnetlink -lnetfilter_queue -lmnl
 

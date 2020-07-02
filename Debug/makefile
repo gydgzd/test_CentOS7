@@ -44,7 +44,7 @@ all: test
 test: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L../lib -L../pcap-1.9.1/lib -L../zeromq-4.2.5/lib -L../lib/boost-1.68 -L../include/amqpcpp/lib -L../mysqlclient/lib -L../cJSON/lib -L../lib/netfilter -Wl,-rpath=../lib/boost-1.68 -Wl,-rpath=../lib -o "test" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L../lib -L../lib/libevent-2.1.11 -L../pcap-1.9.1/lib -L../zeromq-4.2.5/lib -L/usr/local/boost_1_68_0/lib/ -L../include/amqpcpp/lib -L../mysqlclient/lib -L../cJSON/lib -L../lib/netfilter -Wl,-rpath=../lib/libevent-2.1.11 -Wl,-rpath=../lib -o "test" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
