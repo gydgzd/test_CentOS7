@@ -23,24 +23,18 @@ Logger::~Logger()
 	mThread.join();
 }
 
-void Logger::log(const string& entry)
+void Logger::log(const string& msg)
 {
 	//Lock mutex and add entry to the queue.
 	unique_lock<mutex> lock(mMutex);
-	mQueue.push(entry);
+	mQueue.push(msg);
 	//notify condition variable to wake up threads
 	mCondVar.notify_all();
 }
 
 void Logger::processEntries()
 {
-	//open log file
-	ofstream ofs("SysMon_log.txt");
-	if(ofs.fail())
-	{
-		cerr<<"Failed to open log file."<<endl;
-		return;
-	}
+
 	//start process loop
 	unique_lock<mutex> lock(mMutex);
 	while(true)
@@ -52,6 +46,13 @@ void Logger::processEntries()
 		}
 		//Condition variable is not notified, so something might be in the queue.
 		lock.unlock();
+	    //open log file
+	    ofstream ofs("SysMon_log.txt");
+	    if(ofs.fail())
+	    {
+	        cerr<<"Failed to open log file."<<endl;
+	        return;
+	    }
 		while(true)
 		{
 			lock.lock();
@@ -66,10 +67,11 @@ void Logger::processEntries()
 			}
 			lock.unlock();
 		}
+	    ofs.close();
 		if(mExit)
 			break;
 	}
-	ofs.close();
+
 }
 
 ////test

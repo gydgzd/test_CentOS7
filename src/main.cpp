@@ -22,6 +22,7 @@ using namespace std;
 #include "zmq_wrapper.h"
 #include "testMultithread.h"
 #include "zlib.h"
+#include "Logger.h"
 #include "zconf.h"
 #include "testMysqlclient.h"
 #include "MyHttpServer.h"
@@ -30,6 +31,11 @@ using namespace std;
 #include "easylogging++.h"    // v9.96.7
 //#include "nf-queue.c"
 #include "nfqnl_test.c"
+#include "ping.cpp"
+#include "RawSocket.h"
+#include "myTunTap.h"
+#include "Mylog.h"
+#include "Mytimer.h"
 INITIALIZE_EASYLOGGINGPP      // needed by easylogging
 void LogInit()
 {
@@ -60,6 +66,7 @@ extern void testCPPCallback();
 extern int testTimer();
 extern int testAmqpcpp();
 extern int test_popen();
+extern int test();           // Logger
 struct test
 {
     int a;
@@ -76,6 +83,52 @@ int nfqnl_test();
 //int test_nf_queue();
 int main(int argc, char ** argv)
 {
+    test();
+    char path[128] = "";
+    char b = 0x1234;
+    printf("%c", b);
+#ifdef WINVER
+    cout << _getcwd(path, 128) << endl;
+#elif __linux
+    cout << getcwd(path, 128) << endl;
+
+    vector<int> vi;
+    for(int i = 0; i < 64; i++)
+    {
+        cout << "size:" << vi.size() << "capacity:" << vi.capacity() << endl;
+        vi.push_back(i);
+    }
+
+/*    myTunTap tun1;
+   tun1.dev_write();
+
+    RawSocket ms;
+    for(int i = 0; i< 1; i++)
+    {
+        ms.sendPkt();
+    }
+    //test ping
+    try
+    {
+        if (argc != 2)
+        {
+            std::cerr << "Usage: ping <host>" << std::endl;
+        #if !defined(BOOST_WINDOWS)
+            std::cerr << "(You may need to run this program as root.)" << std::endl;
+        #endif
+            return 1;
+        }
+
+        boost::asio::io_service io_service;
+        pinger p(io_service, argv[1]);
+        io_service.run();
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+    */
+    //
     std::string str = "12345";
     cout << str.substr(0, 3)<<endl;
     char addr[64] = ":::58443";
@@ -90,12 +143,19 @@ int main(int argc, char ** argv)
     }
     cout<< ip << ":" << port << endl;
     LogInit();
-    char path[128] = "";
-#ifdef WINVER
-    cout << _getcwd(path, 128) << endl;
-#elif __linux
-    cout << getcwd(path, 128) << endl;
+    Mytimer t1;
+    t1.start();
+    Mylog mylog;
+    for(int i = 0; i < 100; i++)
+        mylog.logException("hei, fopen");
+    cout << t1.stop() << endl;
 
+    Mytimer tt;
+    Logger mylogger;
+    tt.start();
+    for(int i = 0; i < 100; i++)
+        mylogger.log("hei, fopen");
+    cout << tt.stop() << endl;
     std::string fileName = "/proc/self/exe";
     size_t linksize = 256;
     char buffer[256] = {0};
@@ -114,9 +174,9 @@ int main(int argc, char ** argv)
 //    myHttp.testTcpServer();
 //    MyHttpClient myclient;
 //    myclient.testHttpClient();
-    TestPcap mypcap;
+//    TestPcap mypcap;
 //    mypcap.testPcap();
-    nfqnl_test();
+//    nfqnl_test();
 //    test_nf_queue();
     string operations = "hi;peters";
     string::size_type pos1 = operations.find(';');

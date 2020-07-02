@@ -7,7 +7,7 @@
 
 #include <src/TestPcap.h>
 
-
+int m_socketRaw = -1;
 
 /*
  * app name/banner
@@ -194,9 +194,7 @@ got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
             return;
     }
 
-    /*
-     *  OK, this packet is TCP.
-     */
+    send(m_socketRaw, (void *)packet, ntohs(ip->ip_len), 0);
 
     /* define/compute tcp header offset */
     tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
@@ -233,31 +231,37 @@ return;
 
 TestPcap::TestPcap() {
     // TODO Auto-generated constructor stub
-
+    m_socketRaw = -1;
 }
 
 TestPcap::~TestPcap() {
     // TODO Auto-generated destructor stub
+    close(m_socketRaw);
 }
 
 int TestPcap::testPcap()
 {
-    char dev[256] = "ens33";           /* capture device name */
-    char errbuf[PCAP_ERRBUF_SIZE];      /* error buffer */
-    pcap_t *handle;             /* packet capture handle */
+    char dev[256] = "ens33";           // capture device name
+    char errbuf[PCAP_ERRBUF_SIZE];     // error buffer
+    pcap_t *handle;                    // packet capture handle
+    m_socketRaw = socket(PF_PACKET,SOCK_RAW, htons(AF_INET));
+    if(m_socketRaw < 0)
+    {
+        printf("create socket error: %d - %s\n", errno, strerror(errno));
+    }
 
-    char filter_exp[] = "ip";       /* filter expression [3] */
-    struct bpf_program fp;          /* compiled filter program (expression) */
-    bpf_u_int32 mask;           /* subnet mask */
-    bpf_u_int32 net;            /* ip */
-    int num_packets = 10;           /* number of packets to capture */
+    char filter_exp[] = "icmp";          // filter expression [3]
+    struct bpf_program fp;             // compiled filter program (expression)
+    bpf_u_int32 mask;                  // subnet mask
+    bpf_u_int32 net;                   // ip
+    int num_packets = 10;              // number of packets to capture
 
     print_app_banner();
 
     /* get network number and mask associated with capture device */
-    if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
-        fprintf(stderr, "Couldn't get netmask for device %s: %s\n",
-            dev, errbuf);
+    if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1)
+    {
+        fprintf(stderr, "Couldn't get netmask for device %s: %s\n", dev, errbuf);
         net = 0;
         mask = 0;
     }
@@ -269,28 +273,29 @@ int TestPcap::testPcap()
 
     /* open capture device */
     handle = pcap_open_live(dev, SNAP_LEN, 1, 1000, errbuf);
-    if (handle == NULL) {
+    if (handle == NULL)
+    {
         fprintf(stderr, "Couldn't open device %s: %s\n", dev, errbuf);
         exit(EXIT_FAILURE);
     }
 
-    /* make sure we're capturing on an Ethernet device [2] */
-    if (pcap_datalink(handle) != DLT_EN10MB) {
+    /* make sure we're capturing on an Ethernet device */
+    if (pcap_datalink(handle) != DLT_EN10MB)
+    {
         fprintf(stderr, "%s is not an Ethernet\n", dev);
         exit(EXIT_FAILURE);
     }
 
     /* compile the filter expression */
-    if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
-        fprintf(stderr, "Couldn't parse filter %s: %s\n",
-            filter_exp, pcap_geterr(handle));
+    if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1)
+    {
+        fprintf(stderr, "Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(handle));
         exit(EXIT_FAILURE);
     }
 
     /* apply the compiled filter */
     if (pcap_setfilter(handle, &fp) == -1) {
-        fprintf(stderr, "Couldn't install filter %s: %s\n",
-            filter_exp, pcap_geterr(handle));
+        fprintf(stderr, "Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
         exit(EXIT_FAILURE);
     }
 
