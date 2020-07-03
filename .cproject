@@ -28,7 +28,7 @@
 									<listOptionValue builtIn="false" value="../"/>
 									<listOptionValue builtIn="false" value="../include/libevent-2.1.11"/>
 									<listOptionValue builtIn="false" value="../pcap-1.9.1/include"/>
-									<listOptionValue builtIn="false" value="../include/boost-1.68"/>
+									<listOptionValue builtIn="false" value="/usr/local/boost_1_69/include"/>
 									<listOptionValue builtIn="false" value="../include/netfilter"/>
 									<listOptionValue builtIn="false" value="../include/amqpcpp/include"/>
 									<listOptionValue builtIn="false" value="..//zeromq-4.2.5/include"/>
@@ -55,7 +55,7 @@
 									<listOptionValue builtIn="false" value="../lib/libevent-2.1.11"/>
 									<listOptionValue builtIn="false" value="../pcap-1.9.1/lib"/>
 									<listOptionValue builtIn="false" value="../zeromq-4.2.5/lib"/>
-									<listOptionValue builtIn="false" value="/usr/local/boost_1_68_0/lib/"/>
+									<listOptionValue builtIn="false" value="/usr/local/boost_1_69/lib/"/>
 									<listOptionValue builtIn="false" value="../include/amqpcpp/lib"/>
 									<listOptionValue builtIn="false" value="../mysqlclient/lib"/>
 									<listOptionValue builtIn="false" value="../cJSON/lib"/>
