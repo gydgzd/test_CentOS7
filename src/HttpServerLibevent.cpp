@@ -51,8 +51,7 @@ struct fd_state * alloc_fd_state(struct event_base *base, evutil_socket_t fd)
         free(state);
         return NULL;
     }
-    state->write_event =
-        event_new(base, fd, EV_WRITE|EV_PERSIST, do_write, state);
+    state->write_event = event_new(base, fd, EV_WRITE|EV_PERSIST, do_write, state);
 
     if (!state->write_event) {
         event_free(state->read_event);

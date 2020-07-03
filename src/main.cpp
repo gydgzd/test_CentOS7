@@ -85,8 +85,8 @@ int nfqnl_test();
 //int test_nf_queue();
 int main(int argc, char ** argv)
 {
-    HttpServerLibevent lvhttp;
-    lvhttp.testLibevent();
+//    HttpServerLibevent lvhttp;
+//    lvhttp.testLibevent();
     test();
     char path[128] = "";
     char b = 0x1234;
@@ -174,8 +174,8 @@ int main(int argc, char ** argv)
 //    for(int i = 99; i < 700; i++)
 //        LOG(INFO) << i << " Hello, world";
 //    test_popen();
-//    MyHttpServer myHttp;
-//    myHttp.testTcpServer();
+    MyHttpServer myHttp;
+    myHttp.testHttp();
 //    MyHttpClient myclient;
 //    myclient.testHttpClient();
 //    TestPcap mypcap;

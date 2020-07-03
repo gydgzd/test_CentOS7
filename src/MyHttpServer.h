@@ -16,12 +16,15 @@
 #include <iostream>
 #include <functional>
 
+using namespace std;
 //namespace MyClass {
 
 class MyHttpServer {
 public:
     MyHttpServer();
     virtual ~MyHttpServer();
+
+//    void HandleHttpEvent(mg_connection *connection, http_message *http_req);
 
     int testHttp();
     int testTcpServer();

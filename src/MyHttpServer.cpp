@@ -13,6 +13,75 @@
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 
+void SendHttpRsp(mg_connection *connection, std::string rsp)
+{
+    mg_printf(connection, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+    mg_printf_http_chunk(connection,  rsp.c_str());
+    mg_send_http_chunk(connection, "", 0);
+}
+void HandleHttpEvent(mg_connection *connection, http_message *http_req)
+{
+    std::string retMsg = "";
+    std::string strProtocol = "";
+    std::string req_str = std::string(http_req->message.p, http_req->message.len);
+    printf("got request: %s\n", req_str.c_str());
+    std::string query_str = std::string(http_req->query_string.p, http_req->query_string.len);
+    printf("query_string is %s\n", query_str.c_str());
+    std::string url = std::string(http_req->uri.p, http_req->uri.len);
+    std::string body = std::string(http_req->body.p, http_req->body.len);
+    printf("find url %s : body:%s\n", url.c_str(), body.c_str());
+    std::cout << __FUNCTION__ << " http url: " << url;
+    /*
+    std::map<std::string, ReqHandler>::iterator it = s_handler_map.find(url);
+    if (it != s_handler_map.end())
+    {
+        ReqHandler handle_func = it->second;
+        printf("find url %s\n", url.c_str());
+        handle_func(url, body, connection, &HttpServer::SendHttpRsp);
+    }
+    */
+    //
+    if (mg_vcmp(&http_req->uri, "/") == 0 ) // index page
+    {
+        //mg_serve_http(connection, http_req, s_server_option);
+    }
+    else if (mg_vcmp(&http_req->uri, "/ready") == 0 )
+    {
+        retMsg = "{\"errcode\": 0,\"errmsg\":\"ready.\"}";
+        SendHttpRsp(connection, retMsg);
+    }
+    else if (mg_vcmp(&http_req->uri, "/go") == 0 )
+    {
+        retMsg = "{\"errcode\": 0,\"errmsg\":\"go\"}";
+        SendHttpRsp(connection, retMsg);
+
+    }
+    else if (mg_vcmp(&http_req->uri, "/api/sum") == 0 )
+    {
+        //
+        char n1[100], n2[100];
+        char buf[500];
+        double result;
+
+        /* Get form variables */
+        mg_get_http_var(&http_req->body, "n1", n1, sizeof(n1));
+        mg_get_http_var(&http_req->body, "n2", n2, sizeof(n2));
+
+        /* Compute the result and send it back as a JSON object */
+        result = strtod(n1, NULL) + strtod(n2, NULL);
+        sprintf(buf, "%f", result);
+        SendHttpRsp(connection, buf);
+    }
+    else
+    {
+        mg_printf(
+            connection,
+            "%s",
+            "HTTP/1.1 501 Not Implemented\r\n"
+            "Content-Length: 0\r\n\r\n");
+    }
+}
+
 static void http_handler(struct mg_connection *nc, int ev, void *ev_data)
 {
     switch (ev)
@@ -20,18 +89,19 @@ static void http_handler(struct mg_connection *nc, int ev, void *ev_data)
         case MG_EV_ACCEPT:
         {
             char addr[32];
-            mg_sock_addr_to_str(&nc->sa, addr, sizeof(addr),
-                    MG_SOCK_STRINGIFY_IP | MG_SOCK_STRINGIFY_PORT);
+            mg_sock_addr_to_str(&nc->sa, addr, sizeof(addr), MG_SOCK_STRINGIFY_IP | MG_SOCK_STRINGIFY_PORT);
             printf("%p: Connection from %s\r\n", nc, addr);
             break;
         }
         case MG_EV_HTTP_REQUEST:
         {
 
-            mg_serve_http(nc, (struct http_message *) ev_data, s_http_server_opts);
+            http_message *http_req = (http_message *)ev_data;
+            HandleHttpEvent(nc, http_req);
+
+            mg_serve_http(nc, http_req, s_http_server_opts);
 
             struct http_message *hm = (struct http_message *) ev_data;
-
             std::string str_req    = std::string(hm->message.p, hm->message.len);
             std::string str_body   = std::string(hm->body.p,    hm->body.len);
             std::string str_method = std::string(hm->method.p,  hm->method.len);
