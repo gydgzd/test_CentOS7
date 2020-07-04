@@ -175,9 +175,9 @@ int main(int argc, char ** argv)
 //        LOG(INFO) << i << " Hello, world";
 //    test_popen();
     MyHttpServer myHttp;
-    myHttp.testHttp();
-//    MyHttpClient myclient;
-//    myclient.testHttpClient();
+//    myHttp.testHttp();
+    MyHttpClient myclient;
+    myclient.testHttpClient();
 //    TestPcap mypcap;
 //    mypcap.testPcap();
 //    nfqnl_test();

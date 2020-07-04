@@ -28,7 +28,7 @@
 									<listOptionValue builtIn="false" value="../"/>
 									<listOptionValue builtIn="false" value="../include/libevent-2.1.11"/>
 									<listOptionValue builtIn="false" value="../pcap-1.9.1/include"/>
-									<listOptionValue builtIn="false" value="/usr/local/boost_1_69/include"/>
+									<listOptionValue builtIn="false" value="/usr/local/boost_1_68_0/include"/>
 									<listOptionValue builtIn="false" value="../include/netfilter"/>
 									<listOptionValue builtIn="false" value="../include/amqpcpp/include"/>
 									<listOptionValue builtIn="false" value="..//zeromq-4.2.5/include"/>
@@ -55,7 +55,7 @@
 									<listOptionValue builtIn="false" value="../lib/libevent-2.1.11"/>
 									<listOptionValue builtIn="false" value="../pcap-1.9.1/lib"/>
 									<listOptionValue builtIn="false" value="../zeromq-4.2.5/lib"/>
-									<listOptionValue builtIn="false" value="/usr/local/boost_1_69/lib/"/>
+									<listOptionValue builtIn="false" value="/usr/local/boost_1_68_0/lib/"/>
 									<listOptionValue builtIn="false" value="../include/amqpcpp/lib"/>
 									<listOptionValue builtIn="false" value="../mysqlclient/lib"/>
 									<listOptionValue builtIn="false" value="../cJSON/lib"/>
@@ -126,13 +126,11 @@
 									<listOptionValue builtIn="false" value="../"/>
 									<listOptionValue builtIn="false" value="../include/netfilter"/>
 									<listOptionValue builtIn="false" value="../include/amqpcpp/include"/>
-									<listOptionValue builtIn="false" value="..//zeromq-4.2.5/include"/>
+									<listOptionValue builtIn="false" value="../zeromq-4.2.5/include"/>
 									<listOptionValue builtIn="false" value="../mysqlclient/include"/>
 									<listOptionValue builtIn="false" value="../cJSON/include"/>
 								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.files.1662716363" name="Include files (-include)" superClass="gnu.cpp.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
-									<listOptionValue builtIn="false" value="../zeromq-4.2.5/include/zmq.h"/>
-								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.compiler.option.include.files.1662716363" name="Include files (-include)" superClass="gnu.cpp.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1702349959" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.1080782660" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">

@@ -19,18 +19,17 @@ void SendHttpRsp(mg_connection *connection, std::string rsp)
     mg_printf_http_chunk(connection,  rsp.c_str());
     mg_send_http_chunk(connection, "", 0);
 }
-void HandleHttpEvent(mg_connection *connection, http_message *http_req)
+void HandleHttpEvent(mg_connection *connection, http_message *hm)
 {
+    std::string str_req    = std::string(hm->message.p, hm->message.len);
+    std::string str_query  = std::string(hm->query_string.p, hm->query_string.len);
+    std::string str_body   = std::string(hm->body.p,    hm->body.len);
+    std::string str_method = std::string(hm->method.p,  hm->method.len);
+    std::string str_uri    = std::string(hm->uri.p,     hm->uri.len);
+    std::cout<< str_req << " \n"<< str_query <<" \n" << str_body << "\n" << str_method << "\n" <<str_uri<<std::endl;
+
     std::string retMsg = "";
-    std::string strProtocol = "";
-    std::string req_str = std::string(http_req->message.p, http_req->message.len);
-    printf("got request: %s\n", req_str.c_str());
-    std::string query_str = std::string(http_req->query_string.p, http_req->query_string.len);
-    printf("query_string is %s\n", query_str.c_str());
-    std::string url = std::string(http_req->uri.p, http_req->uri.len);
-    std::string body = std::string(http_req->body.p, http_req->body.len);
-    printf("find url %s : body:%s\n", url.c_str(), body.c_str());
-    std::cout << __FUNCTION__ << " http url: " << url;
+
     /*
     std::map<std::string, ReqHandler>::iterator it = s_handler_map.find(url);
     if (it != s_handler_map.end())
@@ -41,22 +40,25 @@ void HandleHttpEvent(mg_connection *connection, http_message *http_req)
     }
     */
     //
-    if (mg_vcmp(&http_req->uri, "/") == 0 ) // index page
+    if (mg_vcmp(&hm->uri, "/") == 0 ) // index page
     {
         //mg_serve_http(connection, http_req, s_server_option);
     }
-    else if (mg_vcmp(&http_req->uri, "/ready") == 0 )
+    else if (mg_vcmp(&hm->uri, "/ready") == 0 )
     {
         retMsg = "{\"errcode\": 0,\"errmsg\":\"ready.\"}";
         SendHttpRsp(connection, retMsg);
     }
-    else if (mg_vcmp(&http_req->uri, "/go") == 0 )
+    else if (mg_vcmp(&hm->uri, "/setParameter") == 0 )
     {
-        retMsg = "{\"errcode\": 0,\"errmsg\":\"go\"}";
+        char port[8] = "";
+        mg_get_http_var(&hm->body, "n1", port, sizeof(port));
+        retMsg = "{\"errcode\": 0,\"errmsg\":\"setParameter\"}";
         SendHttpRsp(connection, retMsg);
+        printf("get port = %s\n", port);
 
     }
-    else if (mg_vcmp(&http_req->uri, "/api/sum") == 0 )
+    else if (mg_vcmp(&hm->uri, "/api/sum") == 0 )
     {
         //
         char n1[100], n2[100];
@@ -64,8 +66,8 @@ void HandleHttpEvent(mg_connection *connection, http_message *http_req)
         double result;
 
         /* Get form variables */
-        mg_get_http_var(&http_req->body, "n1", n1, sizeof(n1));
-        mg_get_http_var(&http_req->body, "n2", n2, sizeof(n2));
+        mg_get_http_var(&hm->body, "n1", n1, sizeof(n1));
+        mg_get_http_var(&hm->body, "n2", n2, sizeof(n2));
 
         /* Compute the result and send it back as a JSON object */
         result = strtod(n1, NULL) + strtod(n2, NULL);
@@ -74,11 +76,9 @@ void HandleHttpEvent(mg_connection *connection, http_message *http_req)
     }
     else
     {
-        mg_printf(
-            connection,
-            "%s",
-            "HTTP/1.1 501 Not Implemented\r\n"
-            "Content-Length: 0\r\n\r\n");
+        mg_printf(connection, "%s",
+                "HTTP/1.1 501 Not Implemented\r\n"
+                "Content-Length: 0\r\n\r\n");
     }
 }
 
@@ -103,10 +103,12 @@ static void http_handler(struct mg_connection *nc, int ev, void *ev_data)
 
             struct http_message *hm = (struct http_message *) ev_data;
             std::string str_req    = std::string(hm->message.p, hm->message.len);
+            std::string str_query  = std::string(hm->query_string.p, hm->query_string.len);
             std::string str_body   = std::string(hm->body.p,    hm->body.len);
             std::string str_method = std::string(hm->method.p,  hm->method.len);
             std::string str_uri    = std::string(hm->uri.p,     hm->uri.len);
-            std::cout<< str_req << " \n"<< str_body << "\n" << str_method << "\n" <<str_uri<<std::endl;
+            std::cout<< str_req << " \n"<< str_query <<" \n" << str_body << "\n" << str_method << "\n" <<str_uri<<std::endl;
+
             char addr[32];
             mg_sock_addr_to_str(&nc->sa, addr, sizeof(addr), MG_SOCK_STRINGIFY_IP | MG_SOCK_STRINGIFY_PORT);
 

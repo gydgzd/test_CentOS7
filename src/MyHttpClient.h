@@ -8,8 +8,11 @@
 #ifndef MYHTTPCLIENT_H_
 #define MYHTTPCLIENT_H_
 
+#include <string>
+#include <iostream>
 #include "mongoose.h"
 
+using namespace std;
 static int s_exit_flag = 0;
 static int s_show_headers = 0;
 static const char *s_show_headers_opt = "--show-headers";
