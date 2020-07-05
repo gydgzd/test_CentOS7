@@ -177,7 +177,8 @@ int main(int argc, char ** argv)
     MyHttpServer myHttp;
 //    myHttp.testHttp();
     MyHttpClient myclient;
-    myclient.testHttpClient();
+//    myclient.testHttpClient();
+    myclient.DownloadFile("http://172.18.10.129:8081/trace1.data");
 //    TestPcap mypcap;
 //    mypcap.testPcap();
 //    nfqnl_test();

@@ -119,3 +119,10 @@ int MyHttpClient::testHttpClient()
 
     return 0;
 }
+
+int MyHttpClient::DownloadFile(const char *url)
+{
+    MyURL myurl;
+    myurl.downloadFile(url, "data1");
+    return 0;
+}

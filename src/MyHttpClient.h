@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include "mongoose.h"
+#include "MyURL.h"
 
 using namespace std;
 static int s_exit_flag = 0;
@@ -24,6 +25,8 @@ public:
 
     static void client_handler(struct mg_connection *nc, int ev, void *ev_data);
     int testHttpClient();
+
+    int DownloadFile(const char *url);
 private:
 };
 
