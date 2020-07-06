@@ -174,10 +174,13 @@ int main(int argc, char ** argv)
 //    for(int i = 99; i < 700; i++)
 //        LOG(INFO) << i << " Hello, world";
 //    test_popen();
+    MyURL myurl;
+    myurl.saveURL("www.baidu.com", "baidu");
     MyHttpServer myHttp;
 //    myHttp.testHttp();
     MyHttpClient myclient;
 //    myclient.testHttpClient();
+
     myclient.DownloadFile("http://172.18.10.129:8081/trace1.data");
 //    TestPcap mypcap;
 //    mypcap.testPcap();

@@ -27,6 +27,8 @@ public:
 	MyURL();
 	virtual ~MyURL();
 	int downloadFile(const char *url, const char * savePath);  // save to tmppath
+	int saveURL(const char *url,const char *savefile);
+
 	int mvToDest(string despath);
 	int setTaskStatus( int status, long taskID, long batchID);
 
@@ -37,8 +39,8 @@ public:
 private:
 	string mstr_url;         // 文件url地址
 	const string mstr_response_file;  // 返回结果，包含下载文件的url
-	int resolveResponse(char *buff, vector<string>& mv);
-	int saveURL(const char *url,const char *savefile);
+
+
 };
 
 #endif /* MYURL_H_ */

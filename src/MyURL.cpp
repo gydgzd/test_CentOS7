@@ -33,19 +33,19 @@ struct MemoryStruct {
 	size_t size;
 };
 /*call back function, that write response to memory*/
-static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+static size_t WriteMemoryCallback(void *readData, size_t size, size_t nmemb, void *userp)
 {
-	size_t realsize = size * nmemb;
+	size_t readsize = size * nmemb;
 	struct MemoryStruct *mem = (struct MemoryStruct *)userp;
 
-	mem->memory = (char *)realloc(mem->memory, mem->size + realsize + 1);
+	mem->memory = (char *)realloc(mem->memory, mem->size + readsize + 1);
 	if (mem->memory == NULL) {
 		/* out of memory! */
 		printf("not enough memory (realloc returned NULL)\n");
 		return 0;
 	}
-	memcpy(&(mem->memory[mem->size]), contents, realsize);
-	mem->size += realsize;
+	memcpy(&(mem->memory[mem->size]), readData, readsize);
+	mem->size += readsize;
 	mem->memory[mem->size] = 0;
 	// get someline
 	char *pos = mem->memory;
@@ -55,7 +55,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 	    printf("%s\n", mem->memory);
 	    *pos = '\n';
 	}
-	return realsize;
+	return readsize;
 }
 int getError(char *tag, int& statusCode, int& error)
 {
@@ -92,19 +92,19 @@ int getError(char *tag, int& statusCode, int& error)
     return 0;
 }
 /*call back function, analysis memory*/
-static size_t handleMem(void *contents, size_t size, size_t nmemb, void *userp)
+static size_t handleMem(void *readData, size_t size, size_t nmemb, void *userp)
 {
-    size_t realsize = size * nmemb;
+    size_t readsize = size * nmemb;
     struct MemoryStruct *mem = (struct MemoryStruct *)userp;
 
-    mem->memory = (char *)realloc(mem->memory, mem->size + realsize + 1);
+    mem->memory = (char *)realloc(mem->memory, mem->size + readsize + 1);
     if (mem->memory == NULL) {
         /* out of memory! */
         printf("not enough memory (realloc returned NULL)\n");
         return 0;
     }
-    memcpy(&(mem->memory[mem->size]), contents, realsize);
-    mem->size += realsize;
+    memcpy(&(mem->memory[mem->size]), readData, readsize);
+    mem->size += readsize;
     mem->memory[mem->size] = 0;
     // get someline
     char *posBegin = mem->memory;
@@ -182,7 +182,7 @@ static size_t handleMem(void *contents, size_t size, size_t nmemb, void *userp)
     memset(mem->memory, 0, nSize);
     memmove(mem->memory, posBegin, mem->size - nSize);
     mem->size -= nSize;
-    return realsize;
+    return readsize;
 }
 
 MyURL::MyURL():mstr_response_file("./response.html") {
@@ -244,75 +244,47 @@ int MyURL::downloadFile(const char *url, const char * savePath)
 	return 0;
 }
 
-/* get response, save into mv*/
-int MyURL::resolveResponse(char *sz_response, vector<string>& mv)
-{
-	mv.clear();
-	char *pos = sz_response;
-	char *posEnd = NULL;
-	char tmp_url[512] = "";
-	string str_url;
-	while (*pos != '\0')
-	{
-		memset(tmp_url, 0, sizeof(tmp_url));
-		pos = strstr(pos, "<return>");
-		if (pos == NULL)
-			break;
-		pos = pos + strlen("<return>");
-		posEnd = strstr(pos, "</return>");
-#ifdef WINVER
-		memcpy_s(tmp_bucket, sizeof(tmp_bucket), pos, posEnd - pos);
-#endif
-#ifdef __linux
-		memcpy(tmp_url, pos, posEnd - pos);
-#endif
-		str_url = tmp_url;
-		mv.push_back(str_url);
-	}
-	if(mv.size() == 0)
-		return -1;
-	return 0;
-}
+
 
 int MyURL::saveURL(const char *url,const char *savefile)
 {
-	if( 0 == strlen(url))
-		return -1;
-	// open file for write
-	FILE *fp;
+    if( 0 == strlen(url))
+        return -1;
+    // open file for write
+    FILE *fp;
 #ifdef WINVER
-	int ret = 0;
-	if ((ret = fopen_s(&fp, savefile, "wb")) != 0)
-	{
-		return -1;
-	}
+    int ret = 0;
+    if ((ret = fopen_s(&fp, savefile, "wb")) != 0)
+    {
+        return -1;
+    }
 #endif
 #ifdef __linux
-	if((fp=fopen(savefile,"wb"))==NULL)
-	{
-		return -1;
-	}
+    if((fp=fopen(savefile,"wb"))==NULL)
+    {
+        return -1;
+    }
 #endif
-	CURL *curl;
-	CURLcode code;
-	curl = curl_easy_init();
-	curl_easy_setopt(curl, CURLOPT_URL, url);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-	code = curl_easy_perform(curl);
-	if (code != CURLE_OK)
-	{
-		char logmsg[256] = "";
-		sprintf(logmsg, "ERR: Failed to get %s.", savefile);
-		m_log.logException(logmsg);
-		sprintf(logmsg, "ERR: Failed to curl_easy_perform, %s, the url is %s.", curl_easy_strerror(code), url);
-		m_log.logException(logmsg);
-		curl_easy_cleanup(curl);
-		fclose(fp);
-		return -1;
-	}
-	curl_easy_cleanup(curl);
-	fclose(fp);
-	return 0;
+    CURL *curl;
+    CURLcode code;
+    curl = curl_easy_init();
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+    code = curl_easy_perform(curl);
+    if (code != CURLE_OK)
+    {
+        char logmsg[256] = "";
+        sprintf(logmsg, "ERR: Failed to get %s.", savefile);
+        m_log.logException(logmsg);
+        sprintf(logmsg, "ERR: Failed to curl_easy_perform, %s, the url is %s.", curl_easy_strerror(code), url);
+        m_log.logException(logmsg);
+        curl_easy_cleanup(curl);
+        fclose(fp);
+        return -1;
+    }
+    curl_easy_cleanup(curl);
+    fclose(fp);
+    return 0;
 }
 
 /*
