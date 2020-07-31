@@ -87,7 +87,7 @@ int main(int argc, char ** argv)
 {
 //    HttpServerLibevent lvhttp;
 //    lvhttp.testLibevent();
-    test();
+//    test();
     char path[128] = "";
     char b = 0x1234;
     printf("%c", b);
@@ -95,6 +95,8 @@ int main(int argc, char ** argv)
     cout << _getcwd(path, 128) << endl;
 #elif __linux
     cout << getcwd(path, 128) << endl;
+#endif
+
 
     vector<int> vi;
     for(int i = 0; i < 64; i++)
@@ -169,19 +171,19 @@ int main(int argc, char ** argv)
     }
 
     printf("Application File name = %s\n", fileName.c_str());
-#endif
+
 //    testAmqpcpp();
 //    for(int i = 99; i < 700; i++)
 //        LOG(INFO) << i << " Hello, world";
 //    test_popen();
     MyURL myurl;
     myurl.saveURL("www.baidu.com", "baidu");
-    MyHttpServer myHttp;
+//    MyHttpServer myHttp;
 //    myHttp.testHttp();
-    MyHttpClient myclient;
+ //   MyHttpClient myclient;
 //    myclient.testHttpClient();
 
-    myclient.DownloadFile("http://172.18.10.129:8081/trace1.data");
+//    myclient.DownloadFile("http://172.18.10.129:8081/trace1.data");
 //    TestPcap mypcap;
 //    mypcap.testPcap();
 //    nfqnl_test();

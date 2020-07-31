@@ -307,4 +307,5 @@ int TestPcap::testPcap()
     pcap_close(handle);
 
     printf("\nCapture complete.\n");
+    return 0;
 }
