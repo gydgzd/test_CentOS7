@@ -9,17 +9,16 @@
 Logger::Logger():mExit(false)
 {
 	//Start background thread.
-	mThread = thread(&Logger::processEntries, this);
+	mThread = std::thread(&Logger::processEntries, this);
 }
 
 Logger::~Logger()
 {
-	{
-		unique_lock<mutex> lock(mMutex);
-		//shut down the thread by setting mExit
-		mExit = true;
-		mCondVar.notify_all();
-	}
+    //shut down the thread by setting mExit
+    unique_lock<mutex> lock(mMutex);
+    mExit = true;
+    mCondVar.notify_all();
+	lock.unlock();
 	mThread.join();
 }
 

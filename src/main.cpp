@@ -96,15 +96,26 @@ int main(int argc, char ** argv)
 #elif __linux
     cout << getcwd(path, 128) << endl;
 #endif
-
-
+    Mylog mylog;
+    char logmsg[256] = "";
     vector<int> vi;
     for(int i = 0; i < 64; i++)
     {
-        cout << "size:" << vi.size() << "capacity:" << vi.capacity() << endl;
-        vi.push_back(i);
+    //    sprintf(logmsg, "size:%d, capacity:%d", vi.size(), vi.capacity());
+        //cout << "size:" << vi.size() << "capacity:" << vi.capacity() << endl;
+        vi.emplace_back(i);
+        sprintf(logmsg, "va:%d", i);
+        mylog.log(logmsg);
     }
 
+    vector<int> vb;
+    for(int i = 0; i < 64; i++)
+    {
+    //    cout << "size:" << vb.size() << "capacity:" << vb.capacity() << endl;
+        vb.emplace_back(i);
+        sprintf(logmsg, "vb:%d", i);
+        mylog.log(logmsg);
+    }
 /*    myTunTap tun1;
    tun1.dev_write();
 
@@ -151,7 +162,6 @@ int main(int argc, char ** argv)
     LogInit();
     Mytimer t1;
     t1.start();
-    Mylog mylog;
     for(int i = 0; i < 100; i++)
         mylog.logException("hei, fopen");
     cout << t1.stop() << endl;
