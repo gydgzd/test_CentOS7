@@ -25,10 +25,10 @@ Mylog::Mylog(const char * filename):m_filesize(-1), max_filesize(204800000)
 Mylog::~Mylog()
 {
     //shut down the thread by setting mExit
-    unique_lock<mutex> lock(g_log_Mutex);
+ //   unique_lock<mutex> lock(g_log_Mutex);
     g_log_Exit = true;
+ //   lock.unlock();
     g_log_CondVar.notify_all();
-    lock.unlock();
     logth.join();
 }
 void Mylog::setLogFile(const char *filename)
@@ -102,8 +102,10 @@ void Mylog::log(const char * logMsg)
     //Lock mutex and add entry to the queue.
     unique_lock<mutex> lock(g_log_Mutex);
     mQueue.emplace(logMsg);
+    lock.unlock();
     //notify condition variable to wake up threads
-    g_log_CondVar.notify_all();
+//    g_log_CondVar.notify_all();    // it will add two locks here
+    g_log_CondVar.notify_one();
 	return ;
 }
 int Mylog::logException(const std::string& logMsg)
@@ -111,8 +113,7 @@ int Mylog::logException(const std::string& logMsg)
 	//open log file
 #ifdef __linux
 		mkdir("./log", S_IRWXU | S_IRWXG);   //S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH
-#endif
-#ifdef WINVER
+#elif (defined WINVER ||defined WIN32)
 	_mkdir("./log");
 #endif
 	std::ofstream ofs(mstr_logfile.c_str(), std::ios::app);  //c++11 support ofs(mstr_logFileName ,ios::app)
@@ -134,8 +135,7 @@ int Mylog::logException(sql::SQLException &e, const char* file, const char* func
 	//open log file
 #ifdef __linux
 	mkdir("./log", S_IRWXU | S_IRWXG);   //S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH
-#endif
-#ifdef WINVER
+#elif (defined WINVER ||defined WIN32)
 	_mkdir("./log");
 #endif
 	//string fullPath = "./log"+logFileName;
@@ -161,20 +161,21 @@ int Mylog::logException(sql::SQLException &e, const char* file, const char* func
 void Mylog::processEntries()
 {
     //start process loop
-    unique_lock<mutex> lock(g_log_Mutex);
     while(true)
     {
+        std::unique_lock < std:: mutex > locker(g_log_Mutex);
         //Only wait for notification if we don't have to exit
-        if(!g_log_Exit)
+        if(!g_log_Exit && mQueue.empty())
         {
-            g_log_CondVar.wait(lock);  //wait for a notification
+
+            g_log_CondVar.wait(locker);  //wait for a notification
         }
-        //Condition variable is notified, so something might be in the queue.
-        lock.unlock();
+        locker.unlock();      //  ******this position is important for the lock
+        //notified, so something might be in the queue.
         //open log file
 #if defined __linux
         mkdir("./log", S_IRWXU | S_IRWXG);   //S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH
-#elif defined WINVER
+#elif (defined WINVER ||defined WIN32)
         mkdir("./log");
 #endif
         ofstream ofs(mstr_logfile.c_str(), std::ios::app);
@@ -183,17 +184,18 @@ void Mylog::processEntries()
             cerr<<"Failed to open log file."<<endl;
             return;
         }
-        lock.lock();
+        locker.lock();
         while(!mQueue.empty())
         {
             ofs << getLocalTimeUs("%Y-%m-%d %H:%M:%S") <<"  ";
             ofs << mQueue.front() << std::endl;
             mQueue.pop();
         }
-        lock.unlock();
+        locker.unlock();
         ofs.close();
         checkSize();
         if(g_log_Exit)
             break;
     }
+    printf("Thread exit.\n");
 }

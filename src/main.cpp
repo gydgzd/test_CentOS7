@@ -89,33 +89,12 @@ int main(int argc, char ** argv)
 //    lvhttp.testLibevent();
 //    test();
     char path[128] = "";
-    char b = 0x1234;
-    printf("%c", b);
 #ifdef WINVER
     cout << _getcwd(path, 128) << endl;
 #elif __linux
     cout << getcwd(path, 128) << endl;
 #endif
-    Mylog mylog;
-    char logmsg[256] = "";
-    vector<int> vi;
-    for(int i = 0; i < 64; i++)
-    {
-    //    sprintf(logmsg, "size:%d, capacity:%d", vi.size(), vi.capacity());
-        //cout << "size:" << vi.size() << "capacity:" << vi.capacity() << endl;
-        vi.emplace_back(i);
-        sprintf(logmsg, "va:%d", i);
-        mylog.log(logmsg);
-    }
 
-    vector<int> vb;
-    for(int i = 0; i < 64; i++)
-    {
-    //    cout << "size:" << vb.size() << "capacity:" << vb.capacity() << endl;
-        vb.emplace_back(i);
-        sprintf(logmsg, "vb:%d", i);
-        mylog.log(logmsg);
-    }
 /*    myTunTap tun1;
    tun1.dev_write();
 
@@ -145,9 +124,7 @@ int main(int argc, char ** argv)
         std::cerr << "Exception: " << e.what() << std::endl;
     }
     */
-    //
-    std::string str = "12345";
-    cout << str.substr(0, 3)<<endl;
+
     char addr[64] = ":::58443";
     char ip[32] = "";
     int port = 0;
@@ -160,17 +137,19 @@ int main(int argc, char ** argv)
     }
     cout<< ip << ":" << port << endl;
     LogInit();
+    Mylog mylog;
     Mytimer t1;
     t1.start();
     for(int i = 0; i < 100; i++)
-        mylog.logException("hei, fopen");
+        LOG(INFO) <<"hei, log";
     cout << t1.stop() << endl;
 
     Mytimer tt;
-    Logger mylogger;
     tt.start();
     for(int i = 0; i < 100; i++)
-        mylogger.log("hei, fopen");
+    {
+        mylog.log("hei, log queue");
+    }
     cout << tt.stop() << endl;
     std::string fileName = "/proc/self/exe";
     size_t linksize = 256;
@@ -179,15 +158,15 @@ int main(int argc, char ** argv)
     {
         fileName = buffer;
     }
-
+    sleep(1);
     printf("Application File name = %s\n", fileName.c_str());
-
+/**/
 //    testAmqpcpp();
 //    for(int i = 99; i < 700; i++)
 //        LOG(INFO) << i << " Hello, world";
 //    test_popen();
-    MyURL myurl;
-    myurl.saveURL("www.baidu.com", "baidu");
+//    MyURL myurl;
+ //   myurl.saveURL("www.baidu.com", "baidu");
 //    MyHttpServer myHttp;
 //    myHttp.testHttp();
  //   MyHttpClient myclient;
@@ -213,7 +192,7 @@ int main(int argc, char ** argv)
  //   testPointerOfFunction();
 //    testFunction();
 //    test_udpclient();
-    socket_server();
+ //   socket_server();
 /*
     Mycounter mc1;
     std::thread th{ &Mycounter::counter, &mc1,10, 1 };
@@ -307,14 +286,7 @@ int main(int argc, char ** argv)
 	scanf("%s%s", sa, sb);
 	cout<<sa<<" "<<sb<<endl;
 	*/
-/*
-	vector<int> va;
-	for (int i = 0; i < 16; i++)
-	{
-		cout << "size:" << va.size() << " Capacity:" << va.capacity() << endl;
-		va.push_back(1);
-	}
-*/
+
 	return 0;
 }
 

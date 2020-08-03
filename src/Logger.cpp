@@ -43,7 +43,7 @@ void Logger::processEntries()
         {
             mCondVar.wait(lock);  //wait for a notification
         }
-        //Condition variable is not notified, so something might be in the queue.
+        //notified, so something might be in the queue.
         lock.unlock();
         //open log file
         ofstream ofs("SysMon_log.txt");

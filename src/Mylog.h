@@ -8,17 +8,17 @@
 #ifndef MYLOG_H_
 #define MYLOG_H_
 
-#include <stdio.h>
 #include <stdlib.h>   // fopen
-
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <string.h>   // strlen strerror
 #include <errno.h>    // errno
+#ifdef __linux
 #include <sys/stat.h> // mkdir stat
-#ifdef WINVER
+#elif (defined WINVER ||defined WIN32)
 #include <direct.h>    // _mkdir
 #endif
 
