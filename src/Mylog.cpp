@@ -184,14 +184,18 @@ void Mylog::processEntries()
             cerr<<"Failed to open log file."<<endl;
             return;
         }
-        locker.lock();
-        while(!mQueue.empty())
+        
+        while(!g_log_Exit)
         {
-            ofs << getLocalTimeUs("%Y-%m-%d %H:%M:%S") <<"  ";
-            ofs << mQueue.front() << std::endl;
-            mQueue.pop();
+            locker.lock();
+            if (!mQueue.empty())
+            {
+                ofs << getLocalTimeUs("%Y-%m-%d %H:%M:%S") <<"  ";
+                ofs << mQueue.front() << std::endl;
+                mQueue.pop();
+            }
+            locker.unlock();
         }
-        locker.unlock();
         ofs.close();
         checkSize();
         if(g_log_Exit)

@@ -67,7 +67,6 @@ extern void testCPPCallback();
 extern int testTimer();
 extern int testAmqpcpp();
 extern int test_popen();
-extern int test();           // Logger
 struct test
 {
     int a;
@@ -87,15 +86,14 @@ int main(int argc, char ** argv)
 {
 //    HttpServerLibevent lvhttp;
 //    lvhttp.testLibevent();
-//    test();
     char path[128] = "";
 #ifdef WINVER
     cout << _getcwd(path, 128) << endl;
 #elif __linux
     cout << getcwd(path, 128) << endl;
 #endif
-
-/*    myTunTap tun1;
+/*
+    myTunTap tun1;
    tun1.dev_write();
 
     RawSocket ms;
@@ -128,7 +126,7 @@ int main(int argc, char ** argv)
     char addr[64] = ":::58443";
     char ip[32] = "";
     int port = 0;
-    //sscanf("0:0::58080","%[^*:]:%d", ip, &port);
+    sscanf("0:::58080","%[^*:]:%d", ip, &port);
     char * pos = strrchr(addr, ':');
     if(pos != NULL)
     {

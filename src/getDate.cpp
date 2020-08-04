@@ -1,3 +1,4 @@
+
 #include "getDate.h"
 
 //#include "sql_conn_cpp.h"  //my sql class
@@ -40,35 +41,47 @@ std::string getLocalTime(const char *format)
 
 #ifdef __linux
 	strftime(tmp, sizeof(tmp), format, localtime(&t));
-#elif WINVER
+#elif (defined WINVER ||defined WIN32)
 	tm timeinfo;
 	localtime_s(&timeinfo, &t);
 	strftime(tmp, sizeof(tmp), format, &timeinfo);
 #endif
 
 	date_str = tmp;
-	//puts( tmp );
 	return date_str;
 }
 /*
 return the local time, like
 "%Y-%m-%d %H:%M:%S",
 "%Y-%m-%d",
-"%Y"
+"%Y" 
+then add the us in the tail
 */
 std::string getLocalTimeUs(const char *format)
 {
-    struct timeval tv;
-    gettimeofday(&tv,NULL);
-
     std::string date_str = "";
     char tmp[32] = {};
-
+    struct timeval tv;
 #ifdef __linux
+
+    gettimeofday(&tv, NULL);
     strftime(tmp, sizeof(tmp), format, localtime(&tv.tv_sec));
-#elif WINVER
+#elif (defined WINVER ||defined WIN32)
+    // ´Ó1601Äê1ÔÂ1ÈÕ0:0:0:000µ½1970Äê1ÔÂ1ÈÕ0:0:0:000µÄÊ±¼ä(µ¥Î»100ns)
+#define EPOCHFILETIME   (116444736000000000UL)
+    FILETIME ft;
+    LARGE_INTEGER li;
+    int64_t tt = 0;
+    GetSystemTimeAsFileTime(&ft);
+    li.LowPart = ft.dwLowDateTime;
+    li.HighPart = ft.dwHighDateTime;
+    // ´Ó1970Äê1ÔÂ1ÈÕ0:0:0:000µ½ÏÖÔÚµÄÎ¢ÃëÊı(UTCÊ±¼ä)
+    tt = (li.QuadPart - EPOCHFILETIME) / 10;
+    tv.tv_sec = tt / 1000 / 1000;
+    tv.tv_usec = tt - tv.tv_sec * 1000 * 1000;
     tm timeinfo;
-    localtime_s(&timeinfo, &tv.tv_sec);
+    time_t sec = tv.tv_sec;
+    localtime_s(&timeinfo, &sec);
     strftime(tmp, sizeof(tmp), format, &timeinfo);
 #endif
 
@@ -94,6 +107,7 @@ time_t dateToSeconds(const char *str)
     timeinfo.tm_sec   = second;
     timeinfo.tm_isdst = 0;
 
-    time_t t_ = mktime(&timeinfo); //å·²ç»å‡äº†8ä¸ªæ—¶åŒº
-    return t_; //ç§’æ—¶é—´
+	time_t t_sec = mktime(&timeinfo); // change from tm to second since 1970-01-01 00:00:01 ÒÑ¾­¼õÁË8¸öÊ±Çø
+	return t_sec; //ÃëÊ±¼ä
 }
+
