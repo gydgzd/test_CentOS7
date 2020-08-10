@@ -95,33 +95,25 @@ int main(int argc, char ** argv)
 /*
     myTunTap tun1;
    tun1.dev_write();
-
+*/
     RawSocket ms;
     for(int i = 0; i< 1; i++)
     {
         ms.sendPkt();
     }
     //test ping
+    char dstIP[] = "192.168.95.227";
     try
     {
-        if (argc != 2)
-        {
-            std::cerr << "Usage: ping <host>" << std::endl;
-        #if !defined(BOOST_WINDOWS)
-            std::cerr << "(You may need to run this program as root.)" << std::endl;
-        #endif
-            return 1;
-        }
-
         boost::asio::io_service io_service;
-        pinger p(io_service, argv[1]);
+        pinger p(io_service, dstIP);
         io_service.run();
     }
     catch (std::exception& e)
     {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
-    */
+
 
     char addr[64] = ":::58443";
     char ip[32] = "";
