@@ -84,18 +84,29 @@ int nfqnl_test();
 //int test_nf_queue();
 int main(int argc, char ** argv)
 {
-//    HttpServerLibevent lvhttp;
-//    lvhttp.testLibevent();
     char path[128] = "";
 #ifdef WINVER
     cout << _getcwd(path, 128) << endl;
 #elif __linux
     cout << getcwd(path, 128) << endl;
 #endif
+    std::string fileName = "/proc/self/exe";
+    size_t linksize = 256;
+    char buffer[256] = {0};
+    if(readlink(fileName.c_str() , buffer, linksize) !=-1 )
+    {
+        fileName = buffer;
+    }
+    printf("Application File name = %s\n", fileName.c_str());
+
+    LogInit();                // easylogging++ init
+    HttpServerLibevent lvhttp;
+    lvhttp.testLibevent();
+
 /*
     myTunTap tun1;
-   tun1.dev_write();
-*/
+    tun1.dev_write();
+
     RawSocket ms;
     for(int i = 0; i< 1; i++)
     {
@@ -113,20 +124,8 @@ int main(int argc, char ** argv)
     {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
+*/
 
-
-    char addr[64] = ":::58443";
-    char ip[32] = "";
-    int port = 0;
-    sscanf("0:::58080","%[^*:]:%d", ip, &port);
-    char * pos = strrchr(addr, ':');
-    if(pos != NULL)
-    {
-        strncpy(ip, addr, pos - addr);
-        sscanf(pos + 1,"%d", &port);
-    }
-    cout<< ip << ":" << port << endl;
-    LogInit();
     Mylog mylog;
     Mytimer t1;
     t1.start();
@@ -141,28 +140,11 @@ int main(int argc, char ** argv)
         mylog.log("hei, log queue");
     }
     cout << tt.stop() << endl;
-    std::string fileName = "/proc/self/exe";
-    size_t linksize = 256;
-    char buffer[256] = {0};
-    if(readlink(fileName.c_str() , buffer, linksize) !=-1 )
-    {
-        fileName = buffer;
-    }
-    sleep(1);
-    printf("Application File name = %s\n", fileName.c_str());
+
 /**/
 //    testAmqpcpp();
-//    for(int i = 99; i < 700; i++)
-//        LOG(INFO) << i << " Hello, world";
 //    test_popen();
-//    MyURL myurl;
- //   myurl.saveURL("www.baidu.com", "baidu");
-//    MyHttpServer myHttp;
-//    myHttp.testHttp();
- //   MyHttpClient myclient;
-//    myclient.testHttpClient();
 
-//    myclient.DownloadFile("http://172.18.10.129:8081/trace1.data");
 //    TestPcap mypcap;
 //    mypcap.testPcap();
 //    nfqnl_test();
