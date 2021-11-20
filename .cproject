@@ -29,11 +29,12 @@
 									<listOptionValue builtIn="false" value="../include"/>
 									<listOptionValue builtIn="false" value="../include/libevent-2.1.11"/>
 									<listOptionValue builtIn="false" value="../pcap-1.9.1/include"/>
-									<listOptionValue builtIn="false" value="/usr/local/boost_1_68_0/include"/>
+									<listOptionValue builtIn="false" value="/usr/local/boost/include"/>
 									<listOptionValue builtIn="false" value="../include/netfilter"/>
 									<listOptionValue builtIn="false" value="../include/amqpcpp/include"/>
 									<listOptionValue builtIn="false" value="..//zeromq-4.2.5/include"/>
 									<listOptionValue builtIn="false" value="../mysqlclient/include"/>
+									<listOptionValue builtIn="false" value="../mysql-connector-c++/include/"/>
 									<listOptionValue builtIn="false" value="../cJSON/include"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.compiler.option.include.files.1623854257" name="Include files (-include)" superClass="gnu.cpp.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles"/>
@@ -55,10 +56,12 @@
 									<listOptionValue builtIn="false" value="../lib"/>
 									<listOptionValue builtIn="false" value="../lib/libevent-2.1.11"/>
 									<listOptionValue builtIn="false" value="../pcap-1.9.1/lib"/>
+									<listOptionValue builtIn="false" value="../lib/openssl"/>
 									<listOptionValue builtIn="false" value="../zeromq-4.2.5/lib"/>
-									<listOptionValue builtIn="false" value="/usr/local/boost_1_68_0/lib/"/>
+									<listOptionValue builtIn="false" value="/usr/local/boost/lib/"/>
 									<listOptionValue builtIn="false" value="../include/amqpcpp/lib"/>
 									<listOptionValue builtIn="false" value="../mysqlclient/lib"/>
+									<listOptionValue builtIn="false" value="../mysql-connector-c++/lib"/>
 									<listOptionValue builtIn="false" value="../cJSON/lib"/>
 									<listOptionValue builtIn="false" value="../lib/netfilter"/>
 								</option>
