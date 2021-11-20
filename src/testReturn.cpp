@@ -19,7 +19,7 @@ struct stu
 char * strReturn(void)
 {
 	//warning: address of local variable ‘str’ returned [-Wreturn-local-addr]
-	char str[32] = "This is a test of return.";
+	static char str[32] = "This is a test of return.";
 
 	return str;
 }
