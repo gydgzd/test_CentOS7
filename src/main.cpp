@@ -100,8 +100,8 @@ int main(int argc, char ** argv)
     printf("Application File name = %s\n", fileName.c_str());
 
     LogInit();                // easylogging++ init
-    HttpServerLibevent lvhttp;
-    lvhttp.testLibevent();
+//    HttpServerLibevent lvhttp;
+//    lvhttp.testLibevent();
 
 /*
     myTunTap tun1;
