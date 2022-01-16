@@ -58,7 +58,7 @@ main-build: test_CentOS7
 test_CentOS7: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L../lib -L../lib/libevent-2.1.11 -L../pcap-1.9.1/lib -L../lib/openssl -L../zeromq-4.2.5/lib -L/usr/local/boost/lib/ -L../include/amqpcpp/lib -L../mysqlclient/lib -L../mysql-connector-c++/lib -L../cJSON/lib -L../lib/netfilter -Wl,-rpath=../lib/libevent-2.1.11 -Wl,-rpath=../lib -o "test_CentOS7" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L../thirdlib/curl/lib -L../thirdlib/libevent-2.1.11/lib -L../thirdlib/pcap-1.9.1/lib -L../thirdlib/openssl-1.1.1d/lib -L../thirdlib/zeromq-4.2.5/lib -L/usr/local/boost/lib/ -L../thirdlib/amqpcpp/lib -L../thirdlib/mysqlclient/lib -L../thirdlib/mysql-connector-c++/lib -L../thirdlib/cJSON/lib -L../thirdlib/netfilter/libmnl/lib -L../thirdlib/netfilter/libnetfilter_queue/lib -L../thirdlib/netfilter/libnfnetlink/lib -Wl,-rpath=../lib/libevent-2.1.11 -Wl,-rpath=../lib -o "test_CentOS7" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

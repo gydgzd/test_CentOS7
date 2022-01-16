@@ -11,8 +11,8 @@
 #include <unistd.h>
 #include <iostream>
 #include <vector>
-#include "curl/curl.h"
-#include "curl/easy.h"
+#include "curl.h"
+#include "easy.h"
 #include "sql_conn_cpp.h"
 #include "getDate.h"
 #include "Mylog.h"
