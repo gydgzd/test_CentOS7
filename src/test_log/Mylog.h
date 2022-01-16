@@ -29,8 +29,8 @@
 #include <atomic>
 #include <condition_variable>
 // my head files
-#include "sql_conn_cpp.h"
-#include "getDate.h"
+#include "../test_database/sql_conn_cpp.h"
+#include "../getDate.h"
 //using namespace std;
 #define LOG_FILENAME "log/program.log"
 //Mutex and condition variable to protect access to the queue.

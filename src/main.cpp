@@ -22,21 +22,21 @@ using namespace std;
 #include "zmq_wrapper.h"
 #include "testMultithread.h"
 #include "zlib.h"
-#include "Logger.h"
+#include "test_log/Logger.h"
 #include "zconf.h"
 #include "testMysqlclient.h"
-#include "MyHttpServer.h"
-#include "MyHttpClient.h"
+#include "./test_http/MyHttpServer.h"
+#include "./test_http/MyHttpClient.h"
 #include "TestPcap.h"
-#include "easylogging++.h"    // v9.96.7
+#include "test_log/easylogging++.h"    // v9.96.7
 //#include "nf-queue.c"
 #include "nfqnl_test.c"
 #include "ping.cpp"
 #include "RawSocket.h"
 #include "myTunTap.h"
-#include "Mylog.h"
+#include "test_log/Mylog.h"
 #include "Mytimer.h"
-#include "HttpServerLibevent.h"
+#include "./test_http/HttpServerLibevent.h"
 INITIALIZE_EASYLOGGINGPP      // needed by easylogging
 void LogInit()
 {

@@ -38,7 +38,7 @@ documentation and/or software.
 #include <string>
 #include <iostream>
 #include <errno.h>
-#include "Mylog.h"
+#include "test_log/Mylog.h"
 using namespace std;
 
 // a small class for calculating MD5 hashes of strings or byte arrays

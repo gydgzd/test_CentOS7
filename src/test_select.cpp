@@ -19,7 +19,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>   // inet_pton
 #include "socketDef.h"
-#include "Mylog.h"
+#include "test_log/Mylog.h"
 using namespace std;
 #define DEFAULT_PORT 3401
 #define MAXLINE 4096

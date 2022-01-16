@@ -13,9 +13,9 @@
 #include <vector>
 #include "curl.h"
 #include "easy.h"
-#include "sql_conn_cpp.h"
-#include "getDate.h"
-#include "Mylog.h"
+#include "../test_database/sql_conn_cpp.h"
+#include "../getDate.h"
+#include "../test_log/Mylog.h"
 using namespace std;
 
 #ifndef MYURL_H_

@@ -24,4 +24,7 @@ C_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 src \
+src/test_database \
+src/test_http \
+src/test_log \
 

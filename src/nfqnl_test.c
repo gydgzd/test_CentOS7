@@ -127,7 +127,7 @@ int nfqnl_test()
 		fprintf(stderr, "can't set packet_copy mode\n");
 		exit(1);
 	}
-
+/*
 	printf("setting flags to request UID and GID\n");
 	if (nfq_set_queue_flags(qh, NFQA_CFG_F_UID_GID, NFQA_CFG_F_UID_GID)) {
 		fprintf(stderr, "This kernel version does not allow to retrieve process UID/GID.\n");
@@ -137,7 +137,7 @@ int nfqnl_test()
 	if (nfq_set_queue_flags(qh, NFQA_CFG_F_SECCTX, NFQA_CFG_F_SECCTX)) {
 		fprintf(stderr, "This kernel version does not allow to retrieve security context.\n");
 	}
-
+*/
 	printf("Waiting for packets...\n");
 
 	fd = nfq_fd(h);
